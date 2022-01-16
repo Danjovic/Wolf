@@ -354,15 +354,15 @@ void processJaguarSampledData(void) {
   if (jaguarKeypadRow[1] & (1 << 0)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 1
   if (jaguarKeypadRow[2] & (1 << 0)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 2
   if (jaguarKeypadRow[3] & (1 << 0)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 3
-  if (jaguarKeypadRow[1] & (1 << 1)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 4
-  if (jaguarKeypadRow[2] & (1 << 1)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 5
-  if (jaguarKeypadRow[3] & (1 << 1)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 6
-  if (jaguarKeypadRow[1] & (1 << 2)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 7
-  if (jaguarKeypadRow[2] & (1 << 2)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 8
-  if (jaguarKeypadRow[3] & (1 << 2)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 9
-  if (jaguarKeypadRow[1] & (1 << 3)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key *
-  if (jaguarKeypadRow[2] & (1 << 3)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 0
-  if (jaguarKeypadRow[3] & (1 << 3)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key #
+  if (jaguarKeypadRow[1] & (1 << 1)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // key 4
+  if (jaguarKeypadRow[2] & (1 << 1)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // key 5
+  if (jaguarKeypadRow[3] & (1 << 1)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // key 6
+  if (jaguarKeypadRow[1] & (1 << 2)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // key 7
+  if (jaguarKeypadRow[2] & (1 << 2)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // key 8
+  if (jaguarKeypadRow[3] & (1 << 2)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // key 9
+  if (jaguarKeypadRow[1] & (1 << 3)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // key *
+  if (jaguarKeypadRow[2] & (1 << 3)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // key 0
+  if (jaguarKeypadRow[3] & (1 << 3)) atariKeypad[3] |= (1 << 2); else atariKeypad[3] &= ~(1 << 2); // key #
 
 
   // update directionals
@@ -376,7 +376,7 @@ void processJaguarSampledData(void) {
   switch (operationMode) {
 
     case OMEGA_BOOSTER:
-      if (jaguarKeypadRow[0] & (1 << 0)) atariKeypadColsFirebuttons |= (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button A
+      if (jaguarKeypadRow[0] & (1 << 0)) atariKeypadColsFirebuttons |= (1 << 3);  else atariKeypadColsFirebuttons &= ~(1 << 3); // Button A
       if (jaguarKeypadRow[1] & (1 << 1)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button B
       if (jaguarKeypadRow[2] & (1 << 2)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button C
       break;
@@ -389,7 +389,7 @@ void processJaguarSampledData(void) {
 
     case PROLINE:
     case PETSCII:
-      if (jaguarKeypadRow[0] & (1 << 0)) atariKeypadColsFirebuttons |= (3 << 4); else atariKeypadColsFirebuttons &= ~(3 << 4); // Button A -> B+C
+      if (jaguarKeypadRow[0] & (1 << 0)) atariKeypadColsFirebuttons |= (3 << 4);  else atariKeypadColsFirebuttons &= ~(3 << 4); // Button A -> B+C
       if (jaguarKeypadRow[1] & (1 << 1)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button B
       if (jaguarKeypadRow[2] & (1 << 2)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button C
     default:
@@ -428,24 +428,24 @@ void processSnesPetscii(void) {
     // update keypad
     if (snesScan & (1 <<  4)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Sel + Up    -> key 1
     if (snesScan & (1 <<  5)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Sel + Down  -> key 3
-    if (snesScan & (1 <<  6)) atariKeypad[2] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Sel + Left  -> key 7
-    if (snesScan & (1 <<  7)) atariKeypad[2] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Sel + Right -> key 9
-    if (snesScan & (1 <<  3)) atariKeypad[1] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Sel + Start -> key 5
+    if (snesScan & (1 <<  6)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // Sel + Left  -> key 7
+    if (snesScan & (1 <<  7)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // Sel + Right -> key 9
+    if (snesScan & (1 <<  3)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // Sel + Start -> key 5
   } else {
     if (snesScan & (1 <<  4)) atariDirectionalsJaguarRows |= (1 << 0); else atariDirectionalsJaguarRows &= ~(1 << 0); // Up
     if (snesScan & (1 <<  5)) atariDirectionalsJaguarRows |= (1 << 1); else atariDirectionalsJaguarRows &= ~(1 << 1); // Down
     if (snesScan & (1 <<  6)) atariDirectionalsJaguarRows |= (1 << 2); else atariDirectionalsJaguarRows &= ~(1 << 2); // Left
     if (snesScan & (1 <<  7)) atariDirectionalsJaguarRows |= (1 << 3); else atariDirectionalsJaguarRows &= ~(1 << 3); // Right
-    if (snesScan & (1 <<  3)) atariKeypad[1] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1);                           // Start -> key #
+    if (snesScan & (1 <<  3)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1);                           // Start -> key #
   }
   // process common buttons
 
-  if (snesScan & (1 <<  8)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Button A -> key 6
-  if (snesScan & (1 <<  0)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Button B -> key 8
+  if (snesScan & (1 <<  8)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // Button A -> key 6
+  if (snesScan & (1 <<  0)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // Button B -> key 8
   if (snesScan & (1 <<  9)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Button X -> key 2
-  if (snesScan & (1 <<  1)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Button Y -> key 4
-  if (snesScan & (1 << 10)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Button L -> key *
-  if (snesScan & (1 << 11)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Button R -> key 0
+  if (snesScan & (1 <<  1)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // Button Y -> key 4
+  if (snesScan & (1 << 10)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // Button L -> key *
+  if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // Button R -> key 0
 
 }
 
@@ -455,25 +455,25 @@ void processSnesOther(void) {
       if (snesScan & (1 <<  6)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Sel + Left  -> key 1
       if (snesScan & (1 <<  4)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Sel + Up    -> key 2
       if (snesScan & (1 <<  7)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Sel + Right -> key 3
-      if (snesScan & (1 <<  1)) atariKeypad[1] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Sel + Y     -> key 4
-      if (snesScan & (1 <<  9)) atariKeypad[1] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Sel + X     -> key 5
-      if (snesScan & (1 <<  0)) atariKeypad[1] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Sel + B     -> key 6
-      if (snesScan & (1 <<  5)) atariKeypad[2] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Sel + Down  -> key 7
-      if (snesScan & (1 <<  8)) atariKeypad[2] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Sel + A     -> key 8
-      if (snesScan & (1 << 10)) atariKeypad[2] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Sel + L     -> key 9
-      if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Sel + R     -> key 0
+      if (snesScan & (1 <<  1)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // Sel + Y     -> key 4
+      if (snesScan & (1 <<  9)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // Sel + X     -> key 5
+      if (snesScan & (1 <<  0)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // Sel + B     -> key 6
+      if (snesScan & (1 <<  5)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // Sel + Down  -> key 7
+      if (snesScan & (1 <<  8)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // Sel + A     -> key 8
+      if (snesScan & (1 << 10)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // Sel + L     -> key 9
+      if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // Sel + R     -> key 0
       break;
 
     case (1<<3): // Start
     case (3<<3): // Select + Start  -> keypad * and #
-      if (snesScan & (1 << 10)) atariKeypad[3] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Start[|Sel] + L ->  key *
-      if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Start[|Sel] + R ->  key #
+      if (snesScan & (1 << 10)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // Start[|Sel] + L ->  key *
+      if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 2); else atariKeypad[3] &= ~(1 << 2); // Start[|Sel] + R ->  key #
       break;
 
     default:
       // process directionals
       if (snesScan & (1 <<  4)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Up    -> key 2
-      if (snesScan & (1 <<  5)) atariKeypad[2] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Down  -> key 7
+      if (snesScan & (1 <<  5)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // Down  -> key 7
       if (snesScan & (1 <<  6)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Left  -> key 1
       if (snesScan & (1 <<  7)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Right -> key 3
 
@@ -516,15 +516,15 @@ void processNttSnesPetscii(void) {
   if (snesScan & (1 << 17)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 1
   if (snesScan & (1 << 18)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 2
   if (snesScan & (1 << 19)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 3
-  if (snesScan & (1 << 20)) atariKeypad[1] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 4
-  if (snesScan & (1 << 21)) atariKeypad[1] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 5
-  if (snesScan & (1 << 22)) atariKeypad[1] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 6
-  if (snesScan & (1 << 23)) atariKeypad[2] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 7
-  if (snesScan & (1 << 24)) atariKeypad[2] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 8
-  if (snesScan & (1 << 25)) atariKeypad[2] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 9
-  if (snesScan & (1 << 26)) atariKeypad[3] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key *
-  if (snesScan & (1 << 16)) atariKeypad[3] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 0
-  if (snesScan & (1 << 27)) atariKeypad[3] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key #
+  if (snesScan & (1 << 20)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // key 4
+  if (snesScan & (1 << 21)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // key 5
+  if (snesScan & (1 << 22)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // key 6
+  if (snesScan & (1 << 23)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // key 7
+  if (snesScan & (1 << 24)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // key 8
+  if (snesScan & (1 << 25)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // key 9
+  if (snesScan & (1 << 26)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // key *
+  if (snesScan & (1 << 16)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // key 0
+  if (snesScan & (1 << 27)) atariKeypad[3] |= (1 << 2); else atariKeypad[3] &= ~(1 << 2); // key #
 
   // update directionals
   if (snesScan & (1 <<  4)) atariDirectionalsJaguarRows |= (1 << 0); else atariDirectionalsJaguarRows &= ~(1 << 0); // Up
@@ -533,12 +533,12 @@ void processNttSnesPetscii(void) {
   if (snesScan & (1 <<  7)) atariDirectionalsJaguarRows |= (1 << 3); else atariDirectionalsJaguarRows &= ~(1 << 3); // Right
 
   // update fire buttons
-  if (snesScan & (1 <<  8)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Button A -> key 6
-  if (snesScan & (1 <<  0)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Button B -> key 8
+  if (snesScan & (1 <<  8)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // Button A -> key 6
+  if (snesScan & (1 <<  0)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // Button B -> key 8
   if (snesScan & (1 <<  9)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Button X -> key 2
-  if (snesScan & (1 <<  1)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Button Y -> key 4
-  if (snesScan & (1 << 10)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Button L -> key *
-  if (snesScan & (1 << 11)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Button R -> key 0
+  if (snesScan & (1 <<  1)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // Button Y -> key 4
+  if (snesScan & (1 << 10)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // Button L -> key *
+  if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // Button R -> key 0
 }
 
 void processNttSnesOther(void) {
@@ -546,15 +546,15 @@ void processNttSnesOther(void) {
   if (snesScan & (1 << 17)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 1
   if (snesScan & (1 << 18)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 2
   if (snesScan & (1 << 19)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 3
-  if (snesScan & (1 << 20)) atariKeypad[1] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 4
-  if (snesScan & (1 << 21)) atariKeypad[1] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 5
-  if (snesScan & (1 << 22)) atariKeypad[1] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 6
-  if (snesScan & (1 << 23)) atariKeypad[2] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 7
-  if (snesScan & (1 << 24)) atariKeypad[2] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 8
-  if (snesScan & (1 << 25)) atariKeypad[2] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 9
-  if (snesScan & (1 << 26)) atariKeypad[3] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key *
-  if (snesScan & (1 << 16)) atariKeypad[3] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 0
-  if (snesScan & (1 << 27)) atariKeypad[3] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key #
+  if (snesScan & (1 << 20)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // key 4
+  if (snesScan & (1 << 21)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // key 5
+  if (snesScan & (1 << 22)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // key 6
+  if (snesScan & (1 << 23)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // key 7
+  if (snesScan & (1 << 24)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // key 8
+  if (snesScan & (1 << 25)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // key 9
+  if (snesScan & (1 << 26)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // key *
+  if (snesScan & (1 << 16)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // key 0
+  if (snesScan & (1 << 27)) atariKeypad[3] |= (1 << 2); else atariKeypad[3] &= ~(1 << 2); // key #
 
   // update directionals
   if (snesScan & (1 <<  4)) atariDirectionalsJaguarRows |= (1 << 0); else atariDirectionalsJaguarRows &= ~(1 << 0); // Up
