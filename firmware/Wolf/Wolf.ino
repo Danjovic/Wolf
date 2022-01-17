@@ -26,6 +26,7 @@
 #include <util/delay.h>
 #include <avr/interrupt.h>
 #include <avr/eeprom.h>
+#include "macros.h"
 
 //       _      __ _      _ _   _
 //    __| |___ / _(_)_ _ (_) |_(_)___ _ _  ___
@@ -144,7 +145,6 @@ bool ledGreen = false;
 //                    |_|
 void setup() {
   // Initialize I/O
-
   DDR_JAG_IN &= 0b00000011;                      // pins P2..P7 as inputs,  leave other as is
   DDR_KEYPAD_ROWS_IN &= 0b11110000;              // pins P0..P3 as inputs,  leave other as is
   DDR_KEYPAD_COLS_FIREBUTTONS_OUT |= 0b00111111; // pins P0..P5 as outputs, leave other as is
@@ -351,51 +351,58 @@ void sampleAndProcessControllerData(void) {
 void processJaguarSampledData(void) {
 
   // update keypad
-  if (jaguarKeypadRow[1] & (1 << 0)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 1
-  if (jaguarKeypadRow[2] & (1 << 0)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 2
-  if (jaguarKeypadRow[3] & (1 << 0)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 3
-  if (jaguarKeypadRow[1] & (1 << 1)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // key 4
-  if (jaguarKeypadRow[2] & (1 << 1)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // key 5
-  if (jaguarKeypadRow[3] & (1 << 1)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // key 6
-  if (jaguarKeypadRow[1] & (1 << 2)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // key 7
-  if (jaguarKeypadRow[2] & (1 << 2)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // key 8
-  if (jaguarKeypadRow[3] & (1 << 2)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // key 9
-  if (jaguarKeypadRow[1] & (1 << 3)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // key *
-  if (jaguarKeypadRow[2] & (1 << 3)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // key 0
-  if (jaguarKeypadRow[3] & (1 << 3)) atariKeypad[3] |= (1 << 2); else atariKeypad[3] &= ~(1 << 2); // key #
+  if ( jaguarKey_1_Pressed()        )  pressAtariKey_1();        else   releaseAtariKey_1();       
+  if ( jaguarKey_2_Pressed()        )  pressAtariKey_2();        else   releaseAtariKey_2();       
+  if ( jaguarKey_3_Pressed()        )  pressAtariKey_3();        else   releaseAtariKey_3();       
+  if ( jaguarKey_4_Pressed()        )  pressAtariKey_4();        else   releaseAtariKey_4();       
+  if ( jaguarKey_5_Pressed()        )  pressAtariKey_5();        else   releaseAtariKey_5();       
+  if ( jaguarKey_6_Pressed()        )  pressAtariKey_6();        else   releaseAtariKey_6();       
+  if ( jaguarKey_7_Pressed()        )  pressAtariKey_7();        else   releaseAtariKey_7();       
+  if ( jaguarKey_8_Pressed()        )  pressAtariKey_8();        else   releaseAtariKey_8();       
+  if ( jaguarKey_9_Pressed()        )  pressAtariKey_9();        else   releaseAtariKey_9();       
+  if ( jaguarKey_asterisk_Pressed() )  pressAtariKey_asterisk(); else   releaseAtariKey_asterisk();
+  if ( jaguarKey_0_Pressed()        )  pressAtariKey_0();        else   releaseAtariKey_0();       
+  if ( jaguarKey_hash_Pressed()     )  pressAtariKey_hash();     else   releaseAtariKey_hash();    
 
 
   // update directionals
-  if (jaguarKeypadRow[0] & (1 << 0)) atariDirectionalsJaguarRows |= (1 << 0); else atariDirectionalsJaguarRows &= ~(1 << 0); // Up
-  if (jaguarKeypadRow[0] & (1 << 1)) atariDirectionalsJaguarRows |= (1 << 1); else atariDirectionalsJaguarRows &= ~(1 << 1); // Down
-  if (jaguarKeypadRow[0] & (1 << 2)) atariDirectionalsJaguarRows |= (1 << 2); else atariDirectionalsJaguarRows &= ~(1 << 2); // Left
-  if (jaguarKeypadRow[0] & (1 << 3)) atariDirectionalsJaguarRows |= (1 << 3); else atariDirectionalsJaguarRows &= ~(1 << 3); // Right
-
+  if ( jaguarKey_Up_Pressed()       )  pressAtariKey_Up();       else   releaseAtariKey_Up();   
+  if ( jaguarKey_Down_Pressed()     )  pressAtariKey_Down();     else   releaseAtariKey_Down(); 
+  if ( jaguarKey_Left_Pressed()     )  pressAtariKey_Left();     else   releaseAtariKey_Left(); 
+  if ( jaguarKey_Right_Pressed()    )  pressAtariKey_Right();    else   releaseAtariKey_Right();
+  
 
   // update fire buttons
   switch (operationMode) {
 
     case OMEGA_BOOSTER:
-      if (jaguarKeypadRow[0] & (1 << 0)) atariKeypadColsFirebuttons |= (1 << 3);  else atariKeypadColsFirebuttons &= ~(1 << 3); // Button A
-      if (jaguarKeypadRow[1] & (1 << 1)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button B
-      if (jaguarKeypadRow[2] & (1 << 2)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button C
+	  if ( jaguarKey_A_Pressed()   )   pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A - Fire Button (active low)
+	  if ( jaguarKey_B_Pressed()   )   releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button B - Pot1 active high
+	  if ( jaguarKey_C_Pressed()   )   releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button C - Pot2 active high
       break;
 
     case JOY2BPLUS:
-      if (jaguarKeypadRow[0] & (1 << 0)) atariKeypadColsFirebuttons |= (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button A
-      if (jaguarKeypadRow[1] & (1 << 1)) atariKeypadColsFirebuttons |= (1 << 4); else atariKeypadColsFirebuttons &= ~(1 << 4); // Button B
-      if (jaguarKeypadRow[2] & (1 << 2)) atariKeypadColsFirebuttons |= (1 << 5); else atariKeypadColsFirebuttons &= ~(1 << 5); // Button C
+	  if ( jaguarKey_A_Pressed()   )   pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A - Fire Button (active low)
+	  if ( jaguarKey_B_Pressed()   )   pressAtariKey_Pot1();     else releaseAtariKey_Pot1(); // Button B - Pot1 active low
+	  if ( jaguarKey_C_Pressed()   )   pressAtariKey_Pot2();     else releaseAtariKey_Pot2(); // Button C - Pot2 active low	
       break;
 
     case PROLINE:
     case PETSCII:
-      if (jaguarKeypadRow[0] & (1 << 0)) atariKeypadColsFirebuttons |= (3 << 4);  else atariKeypadColsFirebuttons &= ~(3 << 4); // Button A -> B+C
-      if (jaguarKeypadRow[1] & (1 << 1)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button B
-      if (jaguarKeypadRow[2] & (1 << 2)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button C
+	  if ( jaguarKey_A_Pressed()   ) { // Button A - Activate buttons B and C, active high
+	     releaseAtariKey_Pot1();  
+		 releaseAtariKey_Pot2(); 
+	  }  else {
+		 pressAtariKey_Pot1(); 
+		 pressAtariKey_Pot2(); 
+		 } 
+	  
+	  if ( jaguarKey_B_Pressed()   )   releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button B - Pot1 active high
+	  if ( jaguarKey_C_Pressed()   )   releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button C - Pot2 active high	
+	  
     default:
       break;
   } // switch
-
 }
 
 void processSnesSampleData (void) {
@@ -424,88 +431,109 @@ void processSnesSampleData (void) {
 
 void processSnesPetscii(void) {
   // Check for modifier
-  if ((snesScan & (1 << 2)) == 0 ) { // Select Pressed (USE shortcut)
+  if (snesButton_select_Pressed()) { // Select Pressed (USE shortcut)
+
     // update keypad
-    if (snesScan & (1 <<  4)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Sel + Up    -> key 1
-    if (snesScan & (1 <<  5)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Sel + Down  -> key 3
-    if (snesScan & (1 <<  6)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // Sel + Left  -> key 7
-    if (snesScan & (1 <<  7)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // Sel + Right -> key 9
-    if (snesScan & (1 <<  3)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // Sel + Start -> key 5
+	if ( snesButton_up_Pressed()    )  pressAtariKey_1();        else   releaseAtariKey_1();        // Select + Up    -> key 1
+	if ( snesButton_down_Pressed()  )  pressAtariKey_3();        else   releaseAtariKey_3();        // Select + Down  -> key 3
+	if ( snesButton_left_Pressed()  )  pressAtariKey_7();        else   releaseAtariKey_7();        // Select + Left  -> key 7
+	if ( snesButton_right_Pressed() )  pressAtariKey_9();        else   releaseAtariKey_9();        // Select + Right -> key 9
+	if ( snesButton_start_Pressed() )  pressAtariKey_5();        else   releaseAtariKey_5();        // Select + Start -> key 5
+	
   } else {
-    if (snesScan & (1 <<  4)) atariDirectionalsJaguarRows |= (1 << 0); else atariDirectionalsJaguarRows &= ~(1 << 0); // Up
-    if (snesScan & (1 <<  5)) atariDirectionalsJaguarRows |= (1 << 1); else atariDirectionalsJaguarRows &= ~(1 << 1); // Down
-    if (snesScan & (1 <<  6)) atariDirectionalsJaguarRows |= (1 << 2); else atariDirectionalsJaguarRows &= ~(1 << 2); // Left
-    if (snesScan & (1 <<  7)) atariDirectionalsJaguarRows |= (1 << 3); else atariDirectionalsJaguarRows &= ~(1 << 3); // Right
-    if (snesScan & (1 <<  3)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1);                           // Start -> key #
+	  
+	if ( snesButton_up_Pressed()    )  pressAtariKey_Up();       else   releaseAtariKey_Up();       // Up
+	if ( snesButton_down_Pressed()  )  pressAtariKey_Down();     else   releaseAtariKey_Down();     // Down
+	if ( snesButton_left_Pressed()  )  pressAtariKey_Left();     else   releaseAtariKey_Left();     // Left
+	if ( snesButton_right_Pressed() )  pressAtariKey_Right();    else   releaseAtariKey_Right();    // Right
+	if ( snesButton_start_Pressed() )  pressAtariKey_hash();     else   releaseAtariKey_hash();     // Start -> key #	  
   }
   // process common buttons
-
-  if (snesScan & (1 <<  8)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // Button A -> key 6
-  if (snesScan & (1 <<  0)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // Button B -> key 8
-  if (snesScan & (1 <<  9)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Button X -> key 2
-  if (snesScan & (1 <<  1)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // Button Y -> key 4
-  if (snesScan & (1 << 10)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // Button L -> key *
-  if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // Button R -> key 0
+  if ( snesButton_A_Pressed())         pressAtariKey_6();        else   releaseAtariKey_6();        // Button A -> key 6
+  if ( snesButton_B_Pressed())         pressAtariKey_8();        else   releaseAtariKey_8();        // Button B -> key 8
+  if ( snesButton_X_Pressed())         pressAtariKey_2();        else   releaseAtariKey_2();        // Button X -> key 2
+  if ( snesButton_Y_Pressed())         pressAtariKey_4();        else   releaseAtariKey_4();        // Button Y -> key 4
+  if ( snesButton_L_Pressed())         pressAtariKey_asterisk(); else   releaseAtariKey_asterisk(); // Button L -> key *
+  if ( snesButton_R_Pressed())         pressAtariKey_0();        else   releaseAtariKey_0();        // Button R -> key 0
 
 }
 
 void processSnesOther(void) {
+/*	
+if ( snesButton_select_Pressed() }
+  if ( snesButton_start_Pressed() ) {  // Select + Start Pressed
+  
+  
+  } else { // Select pressed
+	  
+  }
+	
+}	
+*/	
   switch ( ~(snesScan & (3 << 2)) ) {
     case (1<<2): // Select -> keypad 0-9
-      if (snesScan & (1 <<  6)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Sel + Left  -> key 1
-      if (snesScan & (1 <<  4)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Sel + Up    -> key 2
-      if (snesScan & (1 <<  7)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Sel + Right -> key 3
-      if (snesScan & (1 <<  1)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // Sel + Y     -> key 4
-      if (snesScan & (1 <<  9)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // Sel + X     -> key 5
-      if (snesScan & (1 <<  0)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // Sel + B     -> key 6
-      if (snesScan & (1 <<  5)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // Sel + Down  -> key 7
-      if (snesScan & (1 <<  8)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // Sel + A     -> key 8
-      if (snesScan & (1 << 10)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // Sel + L     -> key 9
-      if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // Sel + R     -> key 0
-      break;
+	
+	if ( snesButton_left_Pressed()  )  pressAtariKey_1();        else   releaseAtariKey_1();  // Sel + Left  -> key 1	
+	if ( snesButton_up_Pressed()    )  pressAtariKey_2();        else   releaseAtariKey_2();  // Sel + Up    -> key 2	
+	if ( snesButton_right_Pressed() )  pressAtariKey_3();        else   releaseAtariKey_3();  // Sel + Right -> key 3		
+    if ( snesButton_Y_Pressed()     )  pressAtariKey_4();        else   releaseAtariKey_4();  // Sel + Y     -> key 4
+    if ( snesButton_X_Pressed()     )  pressAtariKey_5();        else   releaseAtariKey_5();  // Sel + X     -> key 5
+    if ( snesButton_B_Pressed()     )  pressAtariKey_6();        else   releaseAtariKey_6();  // Sel + B     -> key 6      
+	if ( snesButton_down_Pressed()  )  pressAtariKey_7();        else   releaseAtariKey_7();  // Sel + Down  -> key 7       
+    if ( snesButton_A_Pressed()     )  pressAtariKey_8();        else   releaseAtariKey_8();  // Sel + A     -> key 8      
+    if ( snesButton_L_Pressed()     )  pressAtariKey_9();        else   releaseAtariKey_9();  // Sel + L     -> key 9       
+    if ( snesButton_R_Pressed()     )  pressAtariKey_0();        else   releaseAtariKey_0();  // Sel + R     -> key 0       
+    break;
 
     case (1<<3): // Start
     case (3<<3): // Select + Start  -> keypad * and #
-      if (snesScan & (1 << 10)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // Start[|Sel] + L ->  key *
-      if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 2); else atariKeypad[3] &= ~(1 << 2); // Start[|Sel] + R ->  key #
+      if ( snesButton_L_Pressed()     )  pressAtariKey_9();      else   releaseAtariKey_asterisk(); // Start[|Sel] + L ->  key *
+      if ( snesButton_R_Pressed()     )  pressAtariKey_0();      else   releaseAtariKey_hash();     // Start[|Sel] + R ->  key #
       break;
 
     default:
       // process directionals
-      if (snesScan & (1 <<  4)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Up    -> key 2
-      if (snesScan & (1 <<  5)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // Down  -> key 7
-      if (snesScan & (1 <<  6)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // Left  -> key 1
-      if (snesScan & (1 <<  7)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // Right -> key 3
+      if ( snesButton_up_Pressed()    )    pressAtariKey_2();      else   releaseAtariKey_2();   // Up    -> key 2
+      if ( snesButton_down_Pressed()  )    pressAtariKey_7();      else   releaseAtariKey_7();   // Down  -> key 7
+      if ( snesButton_left_Pressed()  )    pressAtariKey_1();      else   releaseAtariKey_1();   // Left  -> key 1
+      if ( snesButton_right_Pressed() )    pressAtariKey_3();      else   releaseAtariKey_3();   // Right -> key 3 
+
 
       // update fire buttons
       switch (operationMode) {
 
         case OMEGA_BOOSTER:
-          if (snesScan & (1 <<  8)) atariKeypadColsFirebuttons |=  (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button A
-          if (snesScan & (1 <<  0)) atariKeypadColsFirebuttons |=  (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button B
-          if (snesScan & (1 <<  9)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button X
-          if (snesScan & (1 <<  1)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button Y
-          if (snesScan & (1 << 10)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button L
-          if (snesScan & (1 << 11)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button R
+          if ( snesButton_A_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A -> Fire Button (active low)
+          if ( snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button B -> Fire Button (active low)
+          if ( snesButton_X_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button X -> Pot1 active high
+          if ( snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y -> Pot1 active high
+          if ( snesButton_L_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L -> Pot2 active high
+          if ( snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button R -> Pot2 active high		
           break;
 
         case JOY2BPLUS:
-          if (snesScan & (1 <<  8)) atariKeypadColsFirebuttons |= (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button A
-          if (snesScan & (1 <<  0)) atariKeypadColsFirebuttons |= (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button B
-          if (snesScan & (1 <<  9)) atariKeypadColsFirebuttons |= (1 << 4); else atariKeypadColsFirebuttons &= ~(1 << 4); // Button X
-          if (snesScan & (1 <<  1)) atariKeypadColsFirebuttons |= (1 << 4); else atariKeypadColsFirebuttons &= ~(1 << 4); // Button Y
-          if (snesScan & (1 << 10)) atariKeypadColsFirebuttons |= (1 << 5); else atariKeypadColsFirebuttons &= ~(1 << 5); // Button L
-          if (snesScan & (1 << 11)) atariKeypadColsFirebuttons |= (1 << 5); else atariKeypadColsFirebuttons &= ~(1 << 5); // Button R
+          if ( snesButton_A_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A -> Fire Button (active low)
+          if ( snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button B -> Fire Button (active low)		
+          if ( snesButton_X_Pressed())         pressAtariKey_Pot1();     else releaseAtariKey_Pot1(); // Button X -> Pot1 active low
+          if ( snesButton_Y_Pressed())         pressAtariKey_Pot1();     else releaseAtariKey_Pot1(); // Button Y -> Pot1 active low
+          if ( snesButton_L_Pressed())         pressAtariKey_Pot2();     else releaseAtariKey_Pot2(); // Button L -> Pot2 active low
+          if ( snesButton_R_Pressed())         pressAtariKey_Pot2();     else releaseAtariKey_Pot2(); // Button R -> Pot2 active low
           break;
 
         case PROLINE:
         default:
-          if (snesScan & (1 <<  8)) atariKeypadColsFirebuttons |=  (3 << 4); else atariKeypadColsFirebuttons &= ~(3 << 4); // Button A
-          if (snesScan & (1 <<  0)) atariKeypadColsFirebuttons |=  (3 << 4); else atariKeypadColsFirebuttons &= ~(3 << 4); // Button B
-          if (snesScan & (1 <<  9)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button X
-          if (snesScan & (1 <<  1)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button Y
-          if (snesScan & (1 << 10)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button L
-          if (snesScan & (1 << 11)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button R
+	        if ( snesButton_A_Pressed() || snesButton_B_Pressed()  ) { // Button A - Activate buttons B and C, active high
+	            releaseAtariKey_Pot1();  
+	      	    releaseAtariKey_Pot2(); 
+	        }  else  {
+	      	    pressAtariKey_Pot1(); 
+	      	    pressAtariKey_Pot2(); 
+	      	} 
+		  
+          if ( snesButton_X_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button X -> Pot1 active high
+          if ( snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y -> Pot1 active high
+          if ( snesButton_L_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L -> Pot2 active high
+          if ( snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button R -> Pot2 active high	
           break;
       } // switch
   }
@@ -513,87 +541,94 @@ void processSnesOther(void) {
 
 void processNttSnesPetscii(void) {
   // update keypad
-  if (snesScan & (1 << 17)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 1
-  if (snesScan & (1 << 18)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 2
-  if (snesScan & (1 << 19)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 3
-  if (snesScan & (1 << 20)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // key 4
-  if (snesScan & (1 << 21)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // key 5
-  if (snesScan & (1 << 22)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // key 6
-  if (snesScan & (1 << 23)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // key 7
-  if (snesScan & (1 << 24)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // key 8
-  if (snesScan & (1 << 25)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // key 9
-  if (snesScan & (1 << 26)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // key *
-  if (snesScan & (1 << 16)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // key 0
-  if (snesScan & (1 << 27)) atariKeypad[3] |= (1 << 2); else atariKeypad[3] &= ~(1 << 2); // key #
+  if ( snesButton_1_Pressed()        )  pressAtariKey_1();        else   releaseAtariKey_1();          // key 1
+  if ( snesButton_2_Pressed()        )  pressAtariKey_2();        else   releaseAtariKey_2();          // key 2
+  if ( snesButton_3_Pressed()        )  pressAtariKey_3();        else   releaseAtariKey_3();          // key 3
+  if ( snesButton_4_Pressed()        )  pressAtariKey_4();        else   releaseAtariKey_4();          // key 4
+  if ( snesButton_5_Pressed()        )  pressAtariKey_5();        else   releaseAtariKey_5();          // key 5
+  if ( snesButton_6_Pressed()        )  pressAtariKey_6();        else   releaseAtariKey_6();          // key 6
+  if ( snesButton_7_Pressed()        )  pressAtariKey_7();        else   releaseAtariKey_7();          // key 7
+  if ( snesButton_8_Pressed()        )  pressAtariKey_8();        else   releaseAtariKey_8();          // key 8
+  if ( snesButton_9_Pressed()        )  pressAtariKey_9();        else   releaseAtariKey_9();          // key 9
+  if ( snesButton_asterisk_Pressed() )  pressAtariKey_asterisk(); else   releaseAtariKey_asterisk();   // key * 
+  if ( snesButton_0_Pressed()        )  pressAtariKey_0();        else   releaseAtariKey_0();          // key 0  
+  if ( snesButton_hash_Pressed()     )  pressAtariKey_hash();     else   releaseAtariKey_hash();       // key #
+  
 
   // update directionals
-  if (snesScan & (1 <<  4)) atariDirectionalsJaguarRows |= (1 << 0); else atariDirectionalsJaguarRows &= ~(1 << 0); // Up
-  if (snesScan & (1 <<  5)) atariDirectionalsJaguarRows |= (1 << 1); else atariDirectionalsJaguarRows &= ~(1 << 1); // Down
-  if (snesScan & (1 <<  6)) atariDirectionalsJaguarRows |= (1 << 2); else atariDirectionalsJaguarRows &= ~(1 << 2); // Left
-  if (snesScan & (1 <<  7)) atariDirectionalsJaguarRows |= (1 << 3); else atariDirectionalsJaguarRows &= ~(1 << 3); // Right
+  if ( snesButton_up_Pressed()    )  pressAtariKey_Up();       else   releaseAtariKey_Up();       // Up
+  if ( snesButton_down_Pressed()  )  pressAtariKey_Down();     else   releaseAtariKey_Down();     // Down
+  if ( snesButton_left_Pressed()  )  pressAtariKey_Left();     else   releaseAtariKey_Left();     // Left
+  if ( snesButton_right_Pressed() )  pressAtariKey_Right();    else   releaseAtariKey_Right();    // Right 
+
 
   // update fire buttons
-  if (snesScan & (1 <<  8)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // Button A -> key 6
-  if (snesScan & (1 <<  0)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // Button B -> key 8
-  if (snesScan & (1 <<  9)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // Button X -> key 2
-  if (snesScan & (1 <<  1)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // Button Y -> key 4
-  if (snesScan & (1 << 10)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // Button L -> key *
-  if (snesScan & (1 << 11)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // Button R -> key 0
+  if ( snesButton_A_Pressed())         pressAtariKey_6();        else   releaseAtariKey_6();        // Button A -> key 6
+  if ( snesButton_B_Pressed())         pressAtariKey_8();        else   releaseAtariKey_8();        // Button B -> key 8
+  if ( snesButton_X_Pressed())         pressAtariKey_2();        else   releaseAtariKey_2();        // Button X -> key 2
+  if ( snesButton_Y_Pressed())         pressAtariKey_4();        else   releaseAtariKey_4();        // Button Y -> key 4
+  if ( snesButton_L_Pressed())         pressAtariKey_asterisk(); else   releaseAtariKey_asterisk(); // Button L -> key *
+  if ( snesButton_R_Pressed())         pressAtariKey_0();        else   releaseAtariKey_0();        // Button R -> key 0  
 }
 
 void processNttSnesOther(void) {
-  // update keypad
-  if (snesScan & (1 << 17)) atariKeypad[0] |= (1 << 0); else atariKeypad[0] &= ~(1 << 0); // key 1
-  if (snesScan & (1 << 18)) atariKeypad[0] |= (1 << 1); else atariKeypad[0] &= ~(1 << 1); // key 2
-  if (snesScan & (1 << 19)) atariKeypad[0] |= (1 << 2); else atariKeypad[0] &= ~(1 << 2); // key 3
-  if (snesScan & (1 << 20)) atariKeypad[1] |= (1 << 0); else atariKeypad[1] &= ~(1 << 0); // key 4
-  if (snesScan & (1 << 21)) atariKeypad[1] |= (1 << 1); else atariKeypad[1] &= ~(1 << 1); // key 5
-  if (snesScan & (1 << 22)) atariKeypad[1] |= (1 << 2); else atariKeypad[1] &= ~(1 << 2); // key 6
-  if (snesScan & (1 << 23)) atariKeypad[2] |= (1 << 0); else atariKeypad[2] &= ~(1 << 0); // key 7
-  if (snesScan & (1 << 24)) atariKeypad[2] |= (1 << 1); else atariKeypad[2] &= ~(1 << 1); // key 8
-  if (snesScan & (1 << 25)) atariKeypad[2] |= (1 << 2); else atariKeypad[2] &= ~(1 << 2); // key 9
-  if (snesScan & (1 << 26)) atariKeypad[3] |= (1 << 0); else atariKeypad[3] &= ~(1 << 0); // key *
-  if (snesScan & (1 << 16)) atariKeypad[3] |= (1 << 1); else atariKeypad[3] &= ~(1 << 1); // key 0
-  if (snesScan & (1 << 27)) atariKeypad[3] |= (1 << 2); else atariKeypad[3] &= ~(1 << 2); // key #
+  // update keypad  
+
+  if ( snesButton_1_Pressed()        )  pressAtariKey_1();        else   releaseAtariKey_1();          // key 1
+  if ( snesButton_2_Pressed()        )  pressAtariKey_2();        else   releaseAtariKey_2();          // key 2
+  if ( snesButton_3_Pressed()        )  pressAtariKey_3();        else   releaseAtariKey_3();          // key 3
+  if ( snesButton_4_Pressed()        )  pressAtariKey_4();        else   releaseAtariKey_4();          // key 4
+  if ( snesButton_5_Pressed()        )  pressAtariKey_5();        else   releaseAtariKey_5();          // key 5
+  if ( snesButton_6_Pressed()        )  pressAtariKey_6();        else   releaseAtariKey_6();          // key 6
+  if ( snesButton_7_Pressed()        )  pressAtariKey_7();        else   releaseAtariKey_7();          // key 7
+  if ( snesButton_8_Pressed()        )  pressAtariKey_8();        else   releaseAtariKey_8();          // key 8
+  if ( snesButton_9_Pressed()        )  pressAtariKey_9();        else   releaseAtariKey_9();          // key 9
+  if ( snesButton_asterisk_Pressed() )  pressAtariKey_asterisk(); else   releaseAtariKey_asterisk();   // key * 
+  if ( snesButton_0_Pressed()        )  pressAtariKey_0();        else   releaseAtariKey_0();          // key 0  
+  if ( snesButton_hash_Pressed()     )  pressAtariKey_hash();     else   releaseAtariKey_hash();       // key #
 
   // update directionals
-  if (snesScan & (1 <<  4)) atariDirectionalsJaguarRows |= (1 << 0); else atariDirectionalsJaguarRows &= ~(1 << 0); // Up
-  if (snesScan & (1 <<  5)) atariDirectionalsJaguarRows |= (1 << 1); else atariDirectionalsJaguarRows &= ~(1 << 1); // Down
-  if (snesScan & (1 <<  6)) atariDirectionalsJaguarRows |= (1 << 2); else atariDirectionalsJaguarRows &= ~(1 << 2); // Left
-  if (snesScan & (1 <<  7)) atariDirectionalsJaguarRows |= (1 << 3); else atariDirectionalsJaguarRows &= ~(1 << 3); // Right
+  if ( snesButton_up_Pressed()    )  pressAtariKey_Up();       else   releaseAtariKey_Up();       // Up
+  if ( snesButton_down_Pressed()  )  pressAtariKey_Down();     else   releaseAtariKey_Down();     // Down
+  if ( snesButton_left_Pressed()  )  pressAtariKey_Left();     else   releaseAtariKey_Left();     // Left
+  if ( snesButton_right_Pressed() )  pressAtariKey_Right();    else   releaseAtariKey_Right();    // Right 
 
   // update fire buttons
   switch (operationMode) {
-
     case OMEGA_BOOSTER:
-      if (snesScan & (1 <<  8)) atariKeypadColsFirebuttons |=  (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button A
-      if (snesScan & (1 <<  0)) atariKeypadColsFirebuttons |=  (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button B
-      if (snesScan & (1 <<  9)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button X
-      if (snesScan & (1 <<  1)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button Y
-      if (snesScan & (1 << 10)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button L
-      if (snesScan & (1 << 11)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button R
+      if ( snesButton_A_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A -> Fire Button (active low)
+      if ( snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button B -> Fire Button (active low)
+      if ( snesButton_X_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button X -> Pot1 active high
+      if ( snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y -> Pot1 active high
+      if ( snesButton_L_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L -> Pot2 active high
+      if ( snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button R -> Pot2 active high		
       break;
 
     case JOY2BPLUS:
-      if (snesScan & (1 <<  8)) atariKeypadColsFirebuttons |= (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button A
-      if (snesScan & (1 <<  0)) atariKeypadColsFirebuttons |= (1 << 3); else atariKeypadColsFirebuttons &= ~(1 << 3); // Button B
-      if (snesScan & (1 <<  9)) atariKeypadColsFirebuttons |= (1 << 4); else atariKeypadColsFirebuttons &= ~(1 << 4); // Button X
-      if (snesScan & (1 <<  1)) atariKeypadColsFirebuttons |= (1 << 4); else atariKeypadColsFirebuttons &= ~(1 << 4); // Button Y
-      if (snesScan & (1 << 10)) atariKeypadColsFirebuttons |= (1 << 5); else atariKeypadColsFirebuttons &= ~(1 << 5); // Button L
-      if (snesScan & (1 << 11)) atariKeypadColsFirebuttons |= (1 << 5); else atariKeypadColsFirebuttons &= ~(1 << 5); // Button R
+      if ( snesButton_A_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A -> Fire Button (active low)
+      if ( snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button B -> Fire Button (active low)		
+      if ( snesButton_X_Pressed())         pressAtariKey_Pot1();     else releaseAtariKey_Pot1(); // Button X -> Pot1 active low
+      if ( snesButton_Y_Pressed())         pressAtariKey_Pot1();     else releaseAtariKey_Pot1(); // Button Y -> Pot1 active low
+      if ( snesButton_L_Pressed())         pressAtariKey_Pot2();     else releaseAtariKey_Pot2(); // Button L -> Pot2 active low
+      if ( snesButton_R_Pressed())         pressAtariKey_Pot2();     else releaseAtariKey_Pot2(); // Button R -> Pot2 active low
       break;
 
     case PROLINE:
     default:
-      if (snesScan & (1 <<  8)) atariKeypadColsFirebuttons |=  (3 << 4); else atariKeypadColsFirebuttons &= ~(3 << 4); // Button A
-      if (snesScan & (1 <<  0)) atariKeypadColsFirebuttons |=  (3 << 4); else atariKeypadColsFirebuttons &= ~(3 << 4); // Button B
-      if (snesScan & (1 <<  9)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button X
-      if (snesScan & (1 <<  1)) atariKeypadColsFirebuttons &= ~(1 << 4); else atariKeypadColsFirebuttons |=  (1 << 4); // Button Y
-      if (snesScan & (1 << 10)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button L
-      if (snesScan & (1 << 11)) atariKeypadColsFirebuttons &= ~(1 << 5); else atariKeypadColsFirebuttons |=  (1 << 5); // Button R
-      break;
-  } // switch
+     if ( snesButton_A_Pressed() || snesButton_B_Pressed()  ) { // Button A - Activate buttons B and C, active high
+        releaseAtariKey_Pot1();  
+   	    releaseAtariKey_Pot2(); 
+     }  else  {
+   	    pressAtariKey_Pot1(); 
+   	    pressAtariKey_Pot2(); 
+   	} 
 
+      if ( snesButton_X_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button X -> Pot1 active high
+      if ( snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y -> Pot1 active high
+      if ( snesButton_L_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L -> Pot2 active high
+      if ( snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button R -> Pot2 active high	
+      break;
+  } // switch  
 }
 
 // start with latch low from last SNES scan
