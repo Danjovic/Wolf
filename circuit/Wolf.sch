@@ -8,20 +8,20 @@
 </settings>
 <grid distance="0.1" unitdist="inch" unit="inch" style="lines" multiple="1" display="no" altdistance="0.01" altunitdist="inch" altunit="inch"/>
 <layers>
-<layer number="1" name="Top" color="4" fill="1" visible="no" active="no"/>
-<layer number="16" name="Bottom" color="1" fill="1" visible="no" active="no"/>
-<layer number="17" name="Pads" color="2" fill="1" visible="no" active="no"/>
-<layer number="18" name="Vias" color="2" fill="1" visible="no" active="no"/>
-<layer number="19" name="Unrouted" color="6" fill="1" visible="no" active="no"/>
-<layer number="20" name="Dimension" color="15" fill="1" visible="no" active="no"/>
-<layer number="21" name="tPlace" color="7" fill="1" visible="no" active="no"/>
-<layer number="22" name="bPlace" color="7" fill="1" visible="no" active="no"/>
-<layer number="23" name="tOrigins" color="15" fill="1" visible="no" active="no"/>
-<layer number="24" name="bOrigins" color="15" fill="1" visible="no" active="no"/>
-<layer number="25" name="tNames" color="7" fill="1" visible="no" active="no"/>
-<layer number="26" name="bNames" color="7" fill="1" visible="no" active="no"/>
-<layer number="27" name="tValues" color="7" fill="1" visible="no" active="no"/>
-<layer number="28" name="bValues" color="7" fill="1" visible="no" active="no"/>
+<layer number="1" name="Top" color="4" fill="1" visible="yes" active="no"/>
+<layer number="16" name="Bottom" color="1" fill="1" visible="yes" active="no"/>
+<layer number="17" name="Pads" color="2" fill="1" visible="yes" active="no"/>
+<layer number="18" name="Vias" color="2" fill="1" visible="yes" active="no"/>
+<layer number="19" name="Unrouted" color="6" fill="1" visible="yes" active="no"/>
+<layer number="20" name="Dimension" color="15" fill="1" visible="yes" active="no"/>
+<layer number="21" name="tPlace" color="7" fill="1" visible="yes" active="no"/>
+<layer number="22" name="bPlace" color="7" fill="1" visible="yes" active="no"/>
+<layer number="23" name="tOrigins" color="15" fill="1" visible="yes" active="no"/>
+<layer number="24" name="bOrigins" color="15" fill="1" visible="yes" active="no"/>
+<layer number="25" name="tNames" color="7" fill="1" visible="yes" active="no"/>
+<layer number="26" name="bNames" color="7" fill="1" visible="yes" active="no"/>
+<layer number="27" name="tValues" color="7" fill="1" visible="yes" active="no"/>
+<layer number="28" name="bValues" color="7" fill="1" visible="yes" active="no"/>
 <layer number="29" name="tStop" color="7" fill="3" visible="no" active="no"/>
 <layer number="30" name="bStop" color="7" fill="6" visible="no" active="no"/>
 <layer number="31" name="tCream" color="7" fill="4" visible="no" active="no"/>
@@ -30,8 +30,8 @@
 <layer number="34" name="bFinish" color="6" fill="6" visible="no" active="no"/>
 <layer number="35" name="tGlue" color="7" fill="4" visible="no" active="no"/>
 <layer number="36" name="bGlue" color="7" fill="5" visible="no" active="no"/>
-<layer number="37" name="tTest" color="7" fill="1" visible="no" active="no"/>
-<layer number="38" name="bTest" color="7" fill="1" visible="no" active="no"/>
+<layer number="37" name="tTest" color="7" fill="1" visible="yes" active="no"/>
+<layer number="38" name="bTest" color="7" fill="1" visible="yes" active="no"/>
 <layer number="39" name="tKeepout" color="4" fill="11" visible="no" active="no"/>
 <layer number="40" name="bKeepout" color="1" fill="11" visible="no" active="no"/>
 <layer number="41" name="tRestrict" color="4" fill="10" visible="no" active="no"/>
@@ -39,12 +39,12 @@
 <layer number="43" name="vRestrict" color="2" fill="10" visible="no" active="no"/>
 <layer number="44" name="Drills" color="7" fill="1" visible="no" active="no"/>
 <layer number="45" name="Holes" color="7" fill="1" visible="no" active="no"/>
-<layer number="46" name="Milling" color="3" fill="1" visible="no" active="no"/>
-<layer number="47" name="Measures" color="7" fill="1" visible="no" active="no"/>
-<layer number="48" name="Document" color="7" fill="1" visible="no" active="no"/>
-<layer number="49" name="Reference" color="7" fill="1" visible="no" active="no"/>
-<layer number="51" name="tDocu" color="7" fill="1" visible="no" active="no"/>
-<layer number="52" name="bDocu" color="7" fill="1" visible="no" active="no"/>
+<layer number="46" name="Milling" color="3" fill="1" visible="yes" active="no"/>
+<layer number="47" name="Measures" color="7" fill="1" visible="yes" active="no"/>
+<layer number="48" name="Document" color="7" fill="1" visible="yes" active="no"/>
+<layer number="49" name="Reference" color="7" fill="1" visible="yes" active="no"/>
+<layer number="51" name="tDocu" color="7" fill="1" visible="yes" active="no"/>
+<layer number="52" name="bDocu" color="7" fill="1" visible="yes" active="no"/>
 <layer number="90" name="Modules" color="5" fill="1" visible="yes" active="yes"/>
 <layer number="91" name="Nets" color="2" fill="1" visible="yes" active="yes"/>
 <layer number="92" name="Busses" color="1" fill="1" visible="yes" active="yes"/>
@@ -2965,6 +2965,95 @@ by exp-lbrs.ulp</description>
 <pad name="NC" x="3.516" y="0.254" drill="1.4478" diameter="2.54"/>
 <pad name="NC." x="7.58" y="0.254" drill="1.4478" diameter="2.54"/>
 </package>
+<package name="SNESCON-R">
+<pad name="5V" x="0" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="CLOCK" x="-4" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="DATA" x="-12" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="GND" x="-26.5" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="LATCH" x="-8" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="NC" x="-18.5" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="NC." x="-22.5" y="0.254" drill="1.4478" diameter="2.54"/>
+<wire x1="-32.79" y1="14.35" x2="-32.79" y2="2.6" width="0.127" layer="21"/>
+<wire x1="5.76" y1="14.35" x2="5.76" y2="2.6" width="0.127" layer="21"/>
+<wire x1="5.76" y1="2.6" x2="4.01" y2="2.6" width="0.127" layer="21"/>
+<wire x1="4.01" y1="2.6" x2="2" y2="2.6" width="0.127" layer="21"/>
+<wire x1="2" y1="2.6" x2="-26.64" y2="2.6" width="0.127" layer="21"/>
+<wire x1="-26.64" y1="2.6" x2="-32.79" y2="2.6" width="0.127" layer="21"/>
+<wire x1="0.6" y1="1.6" x2="-0.6" y2="1.6" width="0.127" layer="22"/>
+<wire x1="-3.4" y1="1.6" x2="-4.6" y2="1.6" width="0.127" layer="22"/>
+<wire x1="-7.4" y1="1.6" x2="-8.6" y2="1.6" width="0.127" layer="22"/>
+<wire x1="-11.4" y1="1.6" x2="-12.6" y2="1.6" width="0.127" layer="22"/>
+<wire x1="-17.9" y1="1.6" x2="-19.1" y2="1.6" width="0.127" layer="22"/>
+<wire x1="-21.9" y1="1.6" x2="-23.1" y2="1.6" width="0.127" layer="22"/>
+<wire x1="-25.9" y1="1.6" x2="-27.1" y2="1.6" width="0.127" layer="22"/>
+<wire x1="2" y1="2.6" x2="2" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="-28.5" y1="2.60081875" x2="-28.5" y2="-0.4" width="0.127" layer="21"/>
+<wire x1="2" y1="-0.5" x2="1.5" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="-1.5" y1="-0.5" x2="-2.5" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="-5.5" y1="-0.5" x2="-6.5" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="-9.5" y1="-0.5" x2="-10.5" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="-13.5" y1="-0.5" x2="-17" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="-20" y1="-0.5" x2="-21" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="-24" y1="-0.5" x2="-25" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="-28" y1="-0.4" x2="-28.5" y2="-0.4" width="0.127" layer="21"/>
+<wire x1="-32.79" y1="18.85" x2="-32.79" y2="16.35" width="0.127" layer="21"/>
+<wire x1="-34.735" y1="16.35" x2="-34.735" y2="14.35" width="0.127" layer="21"/>
+<wire x1="7.705" y1="16.35" x2="7.705" y2="14.35" width="0.127" layer="21"/>
+<wire x1="5.76" y1="18.85" x2="5.76" y2="16.35" width="0.127" layer="21"/>
+<wire x1="5.76" y1="18.85" x2="4.01" y2="18.85" width="0.127" layer="21"/>
+<wire x1="4.01" y1="18.85" x2="-26.64" y2="18.85" width="0.127" layer="21"/>
+<wire x1="-26.64" y1="18.85" x2="-32.79" y2="18.85" width="0.127" layer="21"/>
+<wire x1="4.01" y1="18.85" x2="4.01" y2="16.35" width="0.127" layer="21"/>
+<wire x1="4.01" y1="14.35" x2="4.01" y2="2.6" width="0.127" layer="21"/>
+<wire x1="-26.64" y1="18.85" x2="-26.64" y2="16.35" width="0.127" layer="21"/>
+<wire x1="-26.64" y1="14.35" x2="-26.64" y2="2.6" width="0.127" layer="21"/>
+<wire x1="7.705" y1="14.35" x2="4.01" y2="14.35" width="0.127" layer="21"/>
+<wire x1="4.01" y1="16.35" x2="7.705" y2="16.35" width="0.127" layer="21"/>
+<wire x1="-28.04" y1="14.35" x2="-28.04" y2="16.35" width="0.127" layer="21"/>
+<wire x1="-26.64" y1="14.35" x2="-34.735" y2="14.35" width="0.127" layer="21"/>
+<wire x1="-34.735" y1="16.35" x2="-26.64" y2="16.35" width="0.127" layer="21"/>
+</package>
+<package name="SNESCON-L">
+<pad name="5V" x="0" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="CLOCK" x="4" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="DATA" x="12" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="GND" x="26.5" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="LATCH" x="8" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="NC" x="18.5" y="0.254" drill="1.4478" diameter="2.54"/>
+<pad name="NC." x="22.5" y="0.254" drill="1.4478" diameter="2.54"/>
+<wire x1="32.79" y1="14.35" x2="32.79" y2="2.6" width="0.127" layer="21"/>
+<wire x1="-5.76" y1="14.35" x2="-5.76" y2="2.6" width="0.127" layer="21"/>
+<wire x1="-5.76" y1="2.6" x2="-4.01" y2="2.6" width="0.127" layer="21"/>
+<wire x1="-4.01" y1="2.6" x2="-2" y2="2.6" width="0.127" layer="21"/>
+<wire x1="-2" y1="2.6" x2="26.64" y2="2.6" width="0.127" layer="21"/>
+<wire x1="26.64" y1="2.6" x2="32.79" y2="2.6" width="0.127" layer="21"/>
+<wire x1="-2" y1="2.6" x2="-2" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="28.5" y1="2.60081875" x2="28.5" y2="-0.4" width="0.127" layer="21"/>
+<wire x1="-2" y1="-0.5" x2="-1.5" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="1.5" y1="-0.5" x2="2.5" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="5.5" y1="-0.5" x2="6.5" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="9.5" y1="-0.5" x2="10.5" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="13.5" y1="-0.5" x2="17" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="20" y1="-0.5" x2="21" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="24" y1="-0.5" x2="25" y2="-0.5" width="0.127" layer="21"/>
+<wire x1="28" y1="-0.4" x2="28.5" y2="-0.4" width="0.127" layer="21"/>
+<wire x1="32.79" y1="18.85" x2="32.79" y2="16.35" width="0.127" layer="21"/>
+<wire x1="34.735" y1="16.35" x2="34.735" y2="14.35" width="0.127" layer="21"/>
+<wire x1="-7.705" y1="16.35" x2="-7.705" y2="14.35" width="0.127" layer="21"/>
+<wire x1="-5.76" y1="18.85" x2="-5.76" y2="16.35" width="0.127" layer="21"/>
+<wire x1="-5.76" y1="18.85" x2="-4.01" y2="18.85" width="0.127" layer="21"/>
+<wire x1="-4.01" y1="18.85" x2="26.64" y2="18.85" width="0.127" layer="21"/>
+<wire x1="26.64" y1="18.85" x2="32.79" y2="18.85" width="0.127" layer="21"/>
+<wire x1="-4.01" y1="18.85" x2="-4.01" y2="16.35" width="0.127" layer="21"/>
+<wire x1="-4.01" y1="14.35" x2="-4.01" y2="2.6" width="0.127" layer="21"/>
+<wire x1="26.64" y1="18.85" x2="26.64" y2="16.35" width="0.127" layer="21"/>
+<wire x1="26.64" y1="14.35" x2="26.64" y2="2.6" width="0.127" layer="21"/>
+<wire x1="-7.705" y1="14.35" x2="-4.01" y2="14.35" width="0.127" layer="21"/>
+<wire x1="-4.01" y1="16.35" x2="-7.705" y2="16.35" width="0.127" layer="21"/>
+<wire x1="28.04" y1="14.35" x2="28.04" y2="16.35" width="0.127" layer="21"/>
+<wire x1="26.64" y1="14.35" x2="34.735" y2="14.35" width="0.127" layer="21"/>
+<wire x1="34.735" y1="16.35" x2="26.64" y2="16.35" width="0.127" layer="21"/>
+</package>
 </packages>
 <symbols>
 <symbol name="SNES">
@@ -3008,6 +3097,34 @@ by exp-lbrs.ulp</description>
 </gates>
 <devices>
 <device name="G" package="SNESCONN">
+<connects>
+<connect gate="G$1" pin="1" pad="5V"/>
+<connect gate="G$1" pin="2" pad="CLOCK"/>
+<connect gate="G$1" pin="3" pad="LATCH"/>
+<connect gate="G$1" pin="4" pad="DATA"/>
+<connect gate="G$1" pin="5" pad="NC"/>
+<connect gate="G$1" pin="6" pad="NC."/>
+<connect gate="G$1" pin="7" pad="GND"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-L" package="SNESCON-L">
+<connects>
+<connect gate="G$1" pin="1" pad="5V"/>
+<connect gate="G$1" pin="2" pad="CLOCK"/>
+<connect gate="G$1" pin="3" pad="LATCH"/>
+<connect gate="G$1" pin="4" pad="DATA"/>
+<connect gate="G$1" pin="5" pad="NC"/>
+<connect gate="G$1" pin="6" pad="NC."/>
+<connect gate="G$1" pin="7" pad="GND"/>
+</connects>
+<technologies>
+<technology name=""/>
+</technologies>
+</device>
+<device name="-R" package="SNESCON-R">
 <connects>
 <connect gate="G$1" pin="1" pad="5V"/>
 <connect gate="G$1" pin="2" pad="CLOCK"/>
@@ -11393,7 +11510,7 @@ Extended by Federico Battaglin &lt;author&gt;&amp;lt;federico.rd@fdpinternationa
 <part name="X1" library="con-subd" deviceset="F09" device="H"/>
 <part name="X2" library="con-subd" deviceset="F09" device="H"/>
 <part name="M1" library="diy-modules" deviceset="ARDUINO-NANO-3.0" device=""/>
-<part name="K1" library="snes_breakout" deviceset="SNES" device="G" value="SNES"/>
+<part name="K1" library="snes_breakout" deviceset="SNES" device="-R" value="SNES"/>
 <part name="FRAME1" library="frames" deviceset="A4L-LOC" device=""/>
 <part name="IC1" library="74xx-us" deviceset="74*595" device="N" technology="LS" value="74LS595N"/>
 <part name="GND1" library="supply1" deviceset="GND" device=""/>
