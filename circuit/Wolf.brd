@@ -2200,11 +2200,11 @@ design rules under a new name.</description>
 <attribute name="NAME" x="51.435" y="17.1196" size="1.016" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="54.8894" y="16.0274" size="0.9906" layer="27" ratio="10"/>
 </element>
-<element name="R4" library="rcl" package="0204/7" value="2k2" x="71.12" y="21.59" smashed="yes">
+<element name="R4" library="rcl" package="0204/7" value="390" x="71.12" y="21.59" smashed="yes">
 <attribute name="NAME" x="66.675" y="22.1996" size="1.016" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="70.1294" y="21.1074" size="0.9906" layer="27" ratio="10"/>
 </element>
-<element name="R5" library="rcl" package="0204/7" value="2k2" x="81.28" y="40.005" smashed="yes">
+<element name="R5" library="rcl" package="0204/7" value="560" x="81.28" y="40.005" smashed="yes">
 <attribute name="NAME" x="87.63" y="40.6146" size="1.016" layer="25" ratio="10" rot="R180"/>
 <attribute name="VALUE" x="82.2706" y="40.4876" size="0.9906" layer="27" ratio="10" rot="R180"/>
 </element>

@@ -12866,8 +12866,8 @@ I2C</description>
 <part name="R1" library="rcl" deviceset="R-EU_" device="0204/7" value="560"/>
 <part name="R2" library="rcl" deviceset="R-EU_" device="0204/7" value="560"/>
 <part name="R3" library="rcl" deviceset="R-EU_" device="0204/7" value="560"/>
-<part name="R4" library="rcl" deviceset="R-EU_" device="0204/7" value="2k2"/>
-<part name="R5" library="rcl" deviceset="R-EU_" device="0204/7" value="2k2"/>
+<part name="R4" library="rcl" deviceset="R-EU_" device="0204/7" value="390"/>
+<part name="R5" library="rcl" deviceset="R-EU_" device="0204/7" value="560"/>
 <part name="C1" library="rcl" deviceset="C-EU" device="050-024X044" value="100n"/>
 <part name="LD1" library="led" deviceset="DUOLED-RG-C" device=""/>
 <part name="GND3" library="supply1" deviceset="GND" device=""/>
