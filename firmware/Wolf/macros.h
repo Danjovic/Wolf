@@ -76,16 +76,16 @@
 // NTT-pad Ec Hi  C  .  #  *  9  8  7  6  5  4  3  2  1  0 Hi Hi Lo Hi  R  L  X  A RG LF DW UP Nx Pr  Y  B
 
 
-#define snesButton_B_Pressed()        ( (snesScan & (1<< 0)) == 0 )
-#define snesButton_Y_Pressed()        ( (snesScan & (1<< 1)) == 0 )
-#define snesButton_select_Pressed()   ( (snesScan & (1<< 2)) == 0 )
-#define snesButton_start_Pressed()    ( (snesScan & (1<< 3)) == 0 )
-#define snesButton_up_Pressed()       ( (snesScan & (1<< 4)) == 0 )
-#define snesButton_down_Pressed()     ( (snesScan & (1<< 5)) == 0 )
-#define snesButton_left_Pressed()     ( (snesScan & (1<< 6)) == 0 )
-#define snesButton_right_Pressed()    ( (snesScan & (1<< 7)) == 0 )		
-#define snesButton_A_Pressed()        ( (snesScan & (1<< 8)) == 0 )
-#define snesButton_X_Pressed()        ( (snesScan & (1<< 9)) == 0 )
+#define snesButton_B_Pressed()        ( (snesScan & (1<<0)) == 0 )
+#define snesButton_Y_Pressed()        ( (snesScan & (1<<1)) == 0 )
+#define snesButton_select_Pressed()   ( (snesScan & (1<<2)) == 0 )
+#define snesButton_start_Pressed()    ( (snesScan & (1<<3)) == 0 )
+#define snesButton_up_Pressed()       ( (snesScan & (1<<4)) == 0 )
+#define snesButton_down_Pressed()     ( (snesScan & (1<<5)) == 0 )
+#define snesButton_left_Pressed()     ( (snesScan & (1<<6)) == 0 )
+#define snesButton_right_Pressed()    ( (snesScan & (1<<7)) == 0 )		
+#define snesButton_A_Pressed()        ( (snesScan & (1<<8)) == 0 )
+#define snesButton_X_Pressed()        ( (snesScan & (1<<9)) == 0 )
 #define snesButton_L_Pressed()        ( (snesScan & (1<<10)) == 0 )
 #define snesButton_R_Pressed()        ( (snesScan & (1<<11)) == 0 )
 //#define snesButton__Pressed()        ( (snesScan & (1<<12)) == 0 )
@@ -186,4 +186,3 @@
 
 
 #endif
-
