@@ -118,6 +118,7 @@ volatile uint8_t jaguarKeypadRow[4] = {255, 255, 255, 255};
 
 
 
+
 /// Output reports
 
 volatile uint8_t atariKeypad[4]     = {255, 255, 255, 255};
@@ -286,10 +287,10 @@ void setup() {
 
 
 
-  // Initialize Interrupts
-  //PCICR = (0 << PCIE2) | (0 << PCIE1) | (1 << PCIE0); // enable pin chang interrupts on Port B
-  //PCMSK0 = (0 << PCINT7) | (0 << PCINT6) | (0 << PCINT5) | (0 << PCINT4) | (1 << PCINT3) | (1 << PCINT2) | (1 << PCINT1) | (1 << PCINT0); // pins PB0..PB3 change cause interrupts
-  //sei();
+  // Initialize Pin change Interrupts
+  PCICR =  (1 << PCIE0); // enable pin change interrupts on Port B
+  PCMSK0 = (1 << PCINT3) | (1 << PCINT2) | (1 << PCINT1) | (1 << PCINT0); // pins PB0..PB3 change cause interrupts
+  sei();
 
 
 } // end of Setup()
@@ -308,15 +309,11 @@ void loop() {
   // Sample and process controller data
   sampleAndProcessControllerData();
 
-
-
   // Update Outputs
   updateAtariOutputs();
-
+#ifdef DEBUG
   dumpVariables ();
-
-  delay(1000);
-
+#endif
 }
 
 //    _     _                         _
@@ -451,7 +448,6 @@ void processJaguarSampledData(void) {
 void processSnesSampleData (void) { /// entra aqui
 #if DEBUG == 1
   Serial.print ("SnesData:"); Serial.println (snesScan, HEX);
-
 #endif
 
   /// OK
@@ -525,11 +521,10 @@ void processSnesOther(void) {  /// ok
 
 #if DEBUG == 1
   Serial.println("SnesOther:");
-
 #endif
   switch ( ~snesScan & 0x0000000c ) { // isolate and invert bits 2 (select) and 3 (start)
     case (1<<2): // Select -> keypad 0-9
-      Serial.println("sel");
+      //Serial.println("sel");
       if ( snesButton_left_Pressed()  )  pressAtariKey_1();        else   releaseAtariKey_1();  // Sel + Left  -> key 1
       if ( snesButton_up_Pressed()    )  pressAtariKey_2();        else   releaseAtariKey_2();  // Sel + Up    -> key 2
       if ( snesButton_right_Pressed() )  pressAtariKey_3();        else   releaseAtariKey_3();  // Sel + Right -> key 3
@@ -543,15 +538,15 @@ void processSnesOther(void) {  /// ok
       break;
 
     case (1<<3): // Start
-      Serial.println("start");
+      //Serial.println("start");
     case (3<<2): // Select + Start  -> keypad * and #
-      Serial.println("sel+start");
+      //Serial.println("sel+start");
       if ( snesButton_L_Pressed()     )  pressAtariKey_asterisk();  else   releaseAtariKey_asterisk(); // Start[|Sel] + L ->  key *
       if ( snesButton_R_Pressed()     )  pressAtariKey_hash();      else   releaseAtariKey_hash();     // Start[|Sel] + R ->  key #
       break;
 
     default:
-      Serial.println("sem modificador"); ///
+      //Serial.println("sem modificador"); ///
 
       // process directionals
       if ( snesButton_up_Pressed()    )    pressAtariKey_Up();      else   releaseAtariKey_Up();      // Up
@@ -565,7 +560,7 @@ void processSnesOther(void) {  /// ok
 
         case OMEGA_BOOSTER: /// ok
           //atariKeypadColsFirebuttons  = 0b00001111;  // Pot1/Pot2 in LOW level on
-          Serial.println("OMEGA_BOOSTER");
+          //Serial.println("OMEGA_BOOSTER");
           if ( snesButton_A_Pressed() ||
                snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
 
@@ -579,7 +574,7 @@ void processSnesOther(void) {  /// ok
         case JOY2BPLUS:  /// ok
           //atariKeypadColsFirebuttons  = 0b00111111;
           releaseAtariKey_Fire();
-          Serial.println("JOY2BPLUS");
+          //Serial.println("JOY2BPLUS");
           if ( snesButton_A_Pressed() ||
                snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
 
@@ -593,9 +588,9 @@ void processSnesOther(void) {  /// ok
 
         case PROLINE:  /// ok
           releaseAtariKey_Fire();
-          Serial.println("PROLINE");
+          //Serial.println("PROLINE");
         default:
-          Serial.println("default");
+          //Serial.println("default");
 
           //atariKeypadColsFirebuttons  = 0b00001111;
           if ( snesButton_A_Pressed() || snesButton_B_Pressed()  ) { // Button A - Activate buttons B and C, active high
@@ -710,7 +705,7 @@ uint8_t sendjaguarKeypadRowRowAndAtariDirectionalsData (uint8_t data) {
   uint8_t mask = 1;
   uint8_t jaguarRow;
 
-  // disable the receiver
+  // disable the USART receiver to use D0 as I/O
 #ifdef DEBUG
   UCSR0B &= ~(1 << RXEN0);
   pinMode(_DATA, OUTPUT);
@@ -819,11 +814,6 @@ bool  sampleSNESController(void) {  /// ok
 
 
 void  updateAtariOutputs(void) {
-  uint8_t temp;
-
-  /// remove
-  //  Serial.print("dir:"); Serial.print(0b11111111 & atariDirectionalsJaguarRows , HEX);
-  // Serial.print("  btn:"); Serial.println(atariKeypadColsFirebuttons , HEX);
   sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11111111 & atariDirectionalsJaguarRows );
   cli();
   PORT_KEYPAD_COLS_FIREBUTTONS_OUT = atariKeypadColsFirebuttons;
@@ -832,7 +822,7 @@ void  updateAtariOutputs(void) {
 
 
 
-
+#ifdef DEBUG
 
 void dumpVariables () {
   static unsigned long    Last_snesScan;
@@ -1005,3 +995,4 @@ void dumpVariables () {
   }
 
 }
+#endif 
