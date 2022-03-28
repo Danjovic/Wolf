@@ -17,7 +17,7 @@
 */
 
 
-#define DEBUG 1
+#define DEBUG 6
 
 //    _ _ _                 _
 //   | (_) |__ _ _ __ _ _ _(_)___ ___
@@ -154,10 +154,11 @@ void setup() {
 #endif
 
   // Initialize I/O
-  DDR_JAG_IN                      &= 0b00000011; // pins P2..P7 as inputs,  leave other as is
-  PORT_JAG_IN                     |= 0b11111100; // Activate pullups 
-  DDR_KEYPAD_ROWS_IN              &= 0b11110000; // pins P0..P3 as inputs,  leave other as is
-  DDR_KEYPAD_COLS_FIREBUTTONS_OUT |= 0b00111111; // pins P0..P5 as outputs, leave other as is
+  DDR_JAG_IN                        &= 0b00000011; // pins P2..P7 as inputs,  leave other as is
+  PORT_JAG_IN                       |= 0b11111100; // Activate pullups 
+  DDR_KEYPAD_ROWS_IN                &= 0b11110000; // pins P0..P3 as inputs,  leave other as is
+  DDR_KEYPAD_COLS_FIREBUTTONS_OUT   |= 0b00111111; // pins P0..P5 as outputs, leave other as is
+  PORT_KEYPAD_COLS_FIREBUTTONS_OUT  |= 0b00111111; // All High level
 
   pinMode(_DATA, OUTPUT);                        // TODO: incorporate definition in instructions above
   pinMode(LATCH, OUTPUT);
@@ -324,15 +325,16 @@ void loop() {
 ISR(PCINT0_vect)
 {
   uint8_t colSelected = PIN_KEYPAD_ROWS_IN;
-  uint8_t colData;
-  switch (colSelected & 0x0f) {
+  uint8_t colData;  
+  
+  switch (colSelected & 0x0f) {  // pins row2/row1 swapped
 
-    case 0b00001110:            // COL 1   7   6   5   4   3   2   1   0
+    case 0b00001101:            // COL 1   7   6   5   4   3   2   1   0
       colData = atariKeypad[0]; //        Hi  Hi  Hi  Hi  Hi   3   2   1
       break;
 
-    case 0b00001101:            // COL 2   7   6   5   4   3    2   1   0
-      colData = atariKeypad[1]; //        Hi  Hi  Hi  Hi  Hi  6   5   4
+    case 0b00001110:            // COL 2   7   6   5   4   3   2   1   0
+      colData = atariKeypad[1]; //        Hi  Hi  Hi  Hi  Hi   6   5   4
       break;
 
     case 0b00001011:            // COL 3   7   6   5   4   3   2   1   0
@@ -347,8 +349,8 @@ ISR(PCINT0_vect)
       colData = 0b11111111;
   }
 
-  atariKeypadColsFirebuttons |= 0x07;                             //   0    0   POT2 POT1 FIRE  1    1    1
-  atariKeypadColsFirebuttons &= (colData & 0b11111000);           //   1    1    1    1    1   COL3 COL2 COL1
+  atariKeypadColsFirebuttons            |= 0b00000111 ;           //   0    0   POT2 POT1 FIRE  1    1    1
+  atariKeypadColsFirebuttons &= (colData | 0b11111000);           //   1    1    1    1    1   COL3 COL2 COL1
   PORT_KEYPAD_COLS_FIREBUTTONS_OUT = atariKeypadColsFirebuttons;  //   0    0   POT2 POT1 FIRE COL3 COL2 COL1
 
 
