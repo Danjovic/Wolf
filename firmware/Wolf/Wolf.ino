@@ -14,12 +14,11 @@
 
       SNES NTT data keypad info by Raphnet: https://www.raphnet.net/divers/ntt_data_sfc_controller/index_en.php
 
-      09042022 1050
-
+      09042022 1408
 */
 
 
-#define DEBUG 6
+//#define DEBUG 6
 
 //    _ _ _                 _
 //   | (_) |__ _ _ __ _ _ _(_)___ ___
@@ -191,6 +190,8 @@ void setup() {
 #endif
 
 
+
+
   // look for operation mode change in Jaguar controller
   if ( sampleJaguarController() ) {
 
@@ -222,7 +223,7 @@ void setup() {
 
   // look for operation mode change in SNES controller
 
-  if (sampleSNESController()) { /// entra aqui ok
+  if (sampleSNESController()) { 
 #if DEBUG == 1
     Serial.print  ( "SNES Controller respond"); Serial.println ( snesScan, HEX);
 #endif
@@ -264,25 +265,25 @@ void setup() {
   switch (operationMode) {
     case OMEGA_BOOSTER:
       ledRed = false; ledGreen   = true;
-      atariKeypadColsFirebuttons = 0b00111111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  All released 
+      atariKeypadColsFirebuttons = 0b00111111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  All released
       break;
 
 
     case JOY2BPLUS:
       ledRed = true; ledGreen = true;
-      atariKeypadColsFirebuttons = 0b00111111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  All released  
+      atariKeypadColsFirebuttons = 0b00111111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  All released
       break;
 
     case PETSCII:
       ledRed = false; ledGreen = false;
-      atariKeypadColsFirebuttons = 0b00001111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  POT1 and POT2 idle in 0  
+      atariKeypadColsFirebuttons = 0b00001111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  POT1 and POT2 idle in 0
       break;
 
     default:
     case PROLINE:
 
       ledRed = true; ledGreen = false;
-      atariKeypadColsFirebuttons = 0b00001111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  POT1 and POT2 idle in 0  
+      atariKeypadColsFirebuttons = 0b00001111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  POT1 and POT2 idle in 0
       break;
   }
 
@@ -370,12 +371,16 @@ ISR(PCINT0_vect)
 //   |_|  \_,_|_||_\__|\__|_\___/_||_/__/
 //
 
+//
+//
 bool waitForNextSample(void) {
   while ( !(TIFR2 &  (1 << TOV2))  ); // wait for timer 2 overflow
   TIFR2 |= (1 << TOV2);               // reset interrupt flag
 
 }
 
+//
+//
 void sampleAndProcessControllerData(void) {
 
   // clear reports
@@ -383,17 +388,16 @@ void sampleAndProcessControllerData(void) {
   atariKeypad[1] = 0xff;
   atariKeypad[2] = 0xff;
   atariKeypad[3] = 0xff;
-  //atariKeypadColsFirebuttons  = 0b00111111;
-  //atariDirectionalsJaguarRows = 0b11111111;
 
-  if (sampleJaguarController())
-    processJaguarSampledData();
-  if (sampleSNESController())
+  sampleJaguarController();
+  if ( sampleSNESController() )
     processSnesSampleData();
-
+  else
+    processJaguarSampledData();
 }
 
-//*********************************************************************************************************************************
+//
+//
 void processJaguarSampledData(void) {
 
   // update keypad
@@ -449,14 +453,16 @@ void processJaguarSampledData(void) {
 
 }
 
-void processSnesSampleData (void) { /// ok
+//
+//
+void processSnesSampleData (void) { 
 #if DEBUG == 1
   Serial.print ("SnesData:"); Serial.println (snesScan, HEX);
 #endif
 
   /// OK
   // check if the controller is a SNES gamepad
-  if ((snesScan >> 12) == 0x0000000f) { /// ok
+  if ((snesScan >> 12) == 0x0000000f) { 
 #if DEBUG == 1
     Serial.println ("SnesGampepad");
 #endif
@@ -483,7 +489,9 @@ void processSnesSampleData (void) { /// ok
   }
 }
 
-void processSnesPetscii(void) {  /// ok
+//
+//
+void processSnesPetscii(void) { 
   releaseAtariKey_Fire();
 #if DEBUG == 1
   Serial.println ("SnesPetscII");
@@ -521,14 +529,15 @@ void processSnesPetscii(void) {  /// ok
 
 }
 
-void processSnesOther(void) {  /// ok
+//
+//
+void processSnesOther(void) { 
 
 #if DEBUG == 1
   Serial.println("SnesOther:");
 #endif
   switch ( ~snesScan & 0x0000000c ) { // isolate and invert bits 2 (select) and 3 (start)
     case (1<<2): // Select -> keypad 0-9
-      //Serial.println("sel");
       if ( snesButton_left_Pressed()  )  pressAtariKey_1();        else   releaseAtariKey_1();  // Sel + Left  -> key 1
       if ( snesButton_up_Pressed()    )  pressAtariKey_2();        else   releaseAtariKey_2();  // Sel + Up    -> key 2
       if ( snesButton_right_Pressed() )  pressAtariKey_3();        else   releaseAtariKey_3();  // Sel + Right -> key 3
@@ -542,16 +551,12 @@ void processSnesOther(void) {  /// ok
       break;
 
     case (1<<3): // Start
-    //Serial.println("start");
     case (3<<2): // Select + Start  -> keypad * and #
-      //Serial.println("sel+start");
       if ( snesButton_L_Pressed()     )  pressAtariKey_asterisk();  else   releaseAtariKey_asterisk(); // Start[|Sel] + L ->  key *
       if ( snesButton_R_Pressed()     )  pressAtariKey_hash();      else   releaseAtariKey_hash();     // Start[|Sel] + R ->  key #
       break;
 
     default:
-      //Serial.println("sem modificador"); ///
-
       // process directionals
       if ( snesButton_up_Pressed()    )    pressAtariKey_Up();      else   releaseAtariKey_Up();      // Up
       if ( snesButton_down_Pressed()  )    pressAtariKey_Down();    else   releaseAtariKey_Down();    // Down
@@ -562,9 +567,7 @@ void processSnesOther(void) {  /// ok
       // update fire buttons
       switch (operationMode) {
 
-        case OMEGA_BOOSTER: /// ok
-          //atariKeypadColsFirebuttons  = 0b00001111;  // Pot1/Pot2 in LOW level on
-          //Serial.println("OMEGA_BOOSTER");
+        case OMEGA_BOOSTER: 
           if ( snesButton_A_Pressed() ||
                snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
 
@@ -575,10 +578,9 @@ void processSnesOther(void) {  /// ok
                snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L / R -> Pot2 active high
           break;
 
-        case JOY2BPLUS:  /// ok
-          //atariKeypadColsFirebuttons  = 0b00111111;
+        case JOY2BPLUS: 
           releaseAtariKey_Fire();
-          //Serial.println("JOY2BPLUS");
+		  
           if ( snesButton_A_Pressed() ||
                snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
 
@@ -590,12 +592,9 @@ void processSnesOther(void) {  /// ok
 
           break;
 
-        case PROLINE:  /// ok
+        case PROLINE: 
           releaseAtariKey_Fire();
-        //Serial.println("PROLINE");
         default:
-          //Serial.println("default");
-
           //atariKeypadColsFirebuttons  = 0b00001111;
           if ( snesButton_A_Pressed() || snesButton_B_Pressed()  ) { // Button A - Activate buttons B and C, active high
             releaseAtariKey_Pot1();
@@ -611,6 +610,8 @@ void processSnesOther(void) {  /// ok
   }
 }
 
+//
+//
 void processNttSnesPetscii(void) {
   // update keypad
   if ( snesButton_1_Pressed()        )  pressAtariKey_1();        else   releaseAtariKey_1();          // key 1
@@ -626,13 +627,11 @@ void processNttSnesPetscii(void) {
   if ( snesButton_0_Pressed()        )  pressAtariKey_0();        else   releaseAtariKey_0();          // key 0
   if ( snesButton_hash_Pressed()     )  pressAtariKey_hash();     else   releaseAtariKey_hash();       // key #
 
-
   // update directionals
   if ( snesButton_up_Pressed()    )  pressAtariKey_Up();       else   releaseAtariKey_Up();       // Up
   if ( snesButton_down_Pressed()  )  pressAtariKey_Down();     else   releaseAtariKey_Down();     // Down
   if ( snesButton_left_Pressed()  )  pressAtariKey_Left();     else   releaseAtariKey_Left();     // Left
   if ( snesButton_right_Pressed() )  pressAtariKey_Right();    else   releaseAtariKey_Right();    // Right
-
 
   // update fire buttons
   if ( snesButton_A_Pressed())         pressAtariKey_6();        else   releaseAtariKey_6();        // Button A -> key 6
@@ -643,6 +642,8 @@ void processNttSnesPetscii(void) {
   if ( snesButton_R_Pressed())         pressAtariKey_0();        else   releaseAtariKey_0();        // Button R -> key 0
 }
 
+//
+//
 void processNttSnesOther(void) {
 
   // update keypad
@@ -667,43 +668,51 @@ void processNttSnesOther(void) {
   if ( snesButton_right_Pressed() )  pressAtariKey_Right();    else   releaseAtariKey_Right();    // Right
 
   // update fire buttons
-  switch (operationMode) {
-    case OMEGA_BOOSTER:
-      if ( snesButton_A_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A -> Fire Button (active low)
-      if ( snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button B -> Fire Button (active low)
-      if ( snesButton_X_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button X -> Pot1 active high
-      if ( snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y -> Pot1 active high
-      if ( snesButton_L_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L -> Pot2 active high
-      if ( snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button R -> Pot2 active high
-      break;
+       switch (operationMode) {
 
-    case JOY2BPLUS:
-      if ( snesButton_A_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A -> Fire Button (active low)
-      if ( snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button B -> Fire Button (active low)
-      if ( snesButton_X_Pressed())         pressAtariKey_Pot1();     else releaseAtariKey_Pot1(); // Button X -> Pot1 active low
-      if ( snesButton_Y_Pressed())         pressAtariKey_Pot1();     else releaseAtariKey_Pot1(); // Button Y -> Pot1 active low
-      if ( snesButton_L_Pressed())         pressAtariKey_Pot2();     else releaseAtariKey_Pot2(); // Button L -> Pot2 active low
-      if ( snesButton_R_Pressed())         pressAtariKey_Pot2();     else releaseAtariKey_Pot2(); // Button R -> Pot2 active low
-      break;
+        case OMEGA_BOOSTER: 
+          if ( snesButton_A_Pressed() ||
+               snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
 
-    case PROLINE:
-    default:
-      if ( snesButton_A_Pressed() || snesButton_B_Pressed()  ) { // Button A - Activate buttons B and C, active high
-        releaseAtariKey_Pot1();
-        releaseAtariKey_Pot2();
-      }  else  {
-        pressAtariKey_Pot1();
-        pressAtariKey_Pot2();
-      }
+          if ( snesButton_X_Pressed() ||
+               snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y / X -> Pot1 active high
 
-      if ( snesButton_X_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button X -> Pot1 active high
-      if ( snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y -> Pot1 active high
-      if ( snesButton_L_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L -> Pot2 active high
-      if ( snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button R -> Pot2 active high
-      break;
-  } // switch
+          if ( snesButton_L_Pressed() ||
+               snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L / R -> Pot2 active high
+          break;
+
+        case JOY2BPLUS: 
+          releaseAtariKey_Fire();
+		  
+          if ( snesButton_A_Pressed() ||
+               snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
+
+          if ( snesButton_X_Pressed() ||
+               snesButton_Y_Pressed())         pressAtariKey_Pot1();   else releaseAtariKey_Pot1();   // Button Y / X  -> Pot1 active high
+
+          if ( snesButton_L_Pressed() ||
+               snesButton_R_Pressed())         pressAtariKey_Pot2();   else releaseAtariKey_Pot2();   // Button R -> Pot2 active high
+
+          break;
+
+        case PROLINE: 
+          releaseAtariKey_Fire();
+        default:
+          //atariKeypadColsFirebuttons  = 0b00001111;
+          if ( snesButton_A_Pressed() || snesButton_B_Pressed()  ) { // Button A - Activate buttons B and C, active high
+            releaseAtariKey_Pot1();
+            releaseAtariKey_Pot2();
+          }  else  {  // if neither A or B pressed, check other buttons
+            if ( snesButton_X_Pressed() ||
+                 snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y / X -> Pot1 active high
+            if ( snesButton_L_Pressed() ||
+                 snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button R / L -> Pot2 active high
+          }
+          break;
+      } // switch
 }
 
+//
 // start with latch low from last SNES scan
 uint8_t sendjaguarKeypadRowRowAndAtariDirectionalsData (uint8_t data) {
   uint8_t mask = 1;
@@ -745,6 +754,7 @@ uint8_t sendjaguarKeypadRowRowAndAtariDirectionalsData (uint8_t data) {
 } //
 
 
+//
 // shall be performed  before sample SNES controller
 bool  sampleJaguarController(void) {
 
@@ -770,6 +780,7 @@ bool  sampleJaguarController(void) {
 
 } //
 
+//
 // shall be performed after sample jaguar controller
 bool  sampleSNESController(void) {  /// ok
   uint8_t bitCount;
@@ -801,7 +812,6 @@ bool  sampleSNESController(void) {  /// ok
   Serial.println ();
 #endif
 
-
   // restore mode indication led state
   if (ledRed)
     clockHigh();
@@ -821,7 +831,8 @@ bool  sampleSNESController(void) {  /// ok
     return false;
 } //
 
-
+//
+//
 void  updateAtariOutputs(void) {
   sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11111111 & ( atariDirectionalsJaguarRows | 0xf0 ) );
   cli();
@@ -832,7 +843,8 @@ void  updateAtariOutputs(void) {
 
 
 #ifdef DEBUG
-
+//
+//
 void dumpVariables () {
   static unsigned long    Last_snesScan;
   static volatile uint8_t Last_jaguarKeypadRow[4];
