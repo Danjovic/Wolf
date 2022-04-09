@@ -14,6 +14,8 @@
 
       SNES NTT data keypad info by Raphnet: https://www.raphnet.net/divers/ntt_data_sfc_controller/index_en.php
 
+      09042022 1050
+
 */
 
 
@@ -154,11 +156,12 @@ void setup() {
 #endif
 
   // Initialize I/O
-  DDR_JAG_IN                        &= 0b00000011; // pins P2..P7 as inputs,  leave other as is
-  PORT_JAG_IN                       |= 0b11111100; // Activate pullups 
+  DDR_JAG_IN                         = 0b00000000; // all as inputs
+  PORT_JAG_IN                        = 0b11111100; // Activate pullups
   DDR_KEYPAD_ROWS_IN                &= 0b11110000; // pins P0..P3 as inputs,  leave other as is
   DDR_KEYPAD_COLS_FIREBUTTONS_OUT   |= 0b00111111; // pins P0..P5 as outputs, leave other as is
   PORT_KEYPAD_COLS_FIREBUTTONS_OUT  |= 0b00111111; // All High level
+  atariKeypadColsFirebuttons         = 0b00111111; // All released
 
   pinMode(_DATA, OUTPUT);                        // TODO: incorporate definition in instructions above
   pinMode(LATCH, OUTPUT);
@@ -191,34 +194,30 @@ void setup() {
   // look for operation mode change in Jaguar controller
   if ( sampleJaguarController() ) {
 
-#if DEBUG == 1
+#if DEBUG == 6
     Serial.println ( "Jaguar Controller respond");
 #endif
+    if ( (~jaguarKeypadRow[3] & (1 << 4) ) ) { // Option press?
 
-    /*
-        if ( (~jaguarKeypadRow[3] & (1 << 4) ) ) { // Option press?
+      switch ( ~jaguarKeypadRow[0] & 0x0f ) {  // 0  0  0  0  U   D   L   R , active high
+        case (1<<3): // UP → Omega Booster ( 2600)
+          operationMode = OMEGA_BOOSTER;
+          break;
 
-          switch ( ~jaguarKeypadRow[0] & 0x0f ) {  // 0  0  0  0  U   D   L   R , active high
-            case (1<<3): // UP → Omega Booster ( 2600)
-              operationMode = OMEGA_BOOSTER;
-              break;
+        case (1<<2): // DOWN → 7800 Joy2B+
+          operationMode = JOY2BPLUS;
+          break;
 
-            case (1<<2): // DOWN → 7800 Joy2B+
-              operationMode = JOY2BPLUS;
-              break;
+        case (1<<0): // RIGHT → PetscII mode
+          operationMode = PETSCII;
+          break;
 
-            case (1<<0): // RIGHT → PetscII mode
-              operationMode = PETSCII;
-              break;
-
-            default:
-            case (1<<1): // LEFT → 7800 Proline
-              operationMode = PROLINE;
-              break;
-          } // switch
-        } // if
-    */
-
+        default:
+        case (1<<1): // LEFT → 7800 Proline
+          operationMode = PROLINE;
+          break;
+      } // switch
+    } // if
   }
 
   // look for operation mode change in SNES controller
@@ -229,9 +228,9 @@ void setup() {
 #endif
     if ( (~snesScan & (1 << 2) ) ) { // Select press?
 #if DEBUG == 1
-      Serial.print ( "select+:");Serial.println( ~snesScan >> 4 & 0x0f, HEX);
+      Serial.print ( "select+:"); Serial.println( ~snesScan >> 4 & 0x0f, HEX);
 #endif
-      
+
       switch ( ~snesScan >> 4 & 0x0f ) { // ... 0  0  0  0  R  L  D  U , active high
         case (1<<0): // UP → Omega Booster ( 2600)
           operationMode = OMEGA_BOOSTER;
@@ -264,21 +263,26 @@ void setup() {
 
   switch (operationMode) {
     case OMEGA_BOOSTER:
-      ledRed = false; ledGreen = true;
+      ledRed = false; ledGreen   = true;
+      atariKeypadColsFirebuttons = 0b00111111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  All released 
       break;
 
 
     case JOY2BPLUS:
       ledRed = true; ledGreen = true;
+      atariKeypadColsFirebuttons = 0b00111111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  All released  
       break;
 
     case PETSCII:
       ledRed = false; ledGreen = false;
+      atariKeypadColsFirebuttons = 0b00001111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  POT1 and POT2 idle in 0  
       break;
 
     default:
     case PROLINE:
+
       ledRed = true; ledGreen = false;
+      atariKeypadColsFirebuttons = 0b00001111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  POT1 and POT2 idle in 0  
       break;
   }
 
@@ -325,8 +329,8 @@ void loop() {
 ISR(PCINT0_vect)
 {
   uint8_t colSelected = PIN_KEYPAD_ROWS_IN;
-  uint8_t colData;  
-  
+  uint8_t colData;
+
   switch (colSelected & 0x0f) {  // pins row2/row1 swapped
 
     case 0b00001101:            // COL 1   7   6   5   4   3   2   1   0
@@ -389,72 +393,70 @@ void sampleAndProcessControllerData(void) {
 
 }
 
+//*********************************************************************************************************************************
 void processJaguarSampledData(void) {
-  /*
-    // update keypad
-    if ( jaguarKey_1_Pressed()        )  pressAtariKey_1();        else   releaseAtariKey_1();
-    if ( jaguarKey_2_Pressed()        )  pressAtariKey_2();        else   releaseAtariKey_2();
-    if ( jaguarKey_3_Pressed()        )  pressAtariKey_3();        else   releaseAtariKey_3();
-    if ( jaguarKey_4_Pressed()        )  pressAtariKey_4();        else   releaseAtariKey_4();
-    if ( jaguarKey_5_Pressed()        )  pressAtariKey_5();        else   releaseAtariKey_5();
-    if ( jaguarKey_6_Pressed()        )  pressAtariKey_6();        else   releaseAtariKey_6();
-    if ( jaguarKey_7_Pressed()        )  pressAtariKey_7();        else   releaseAtariKey_7();
-    if ( jaguarKey_8_Pressed()        )  pressAtariKey_8();        else   releaseAtariKey_8();
-    if ( jaguarKey_9_Pressed()        )  pressAtariKey_9();        else   releaseAtariKey_9();
-    if ( jaguarKey_asterisk_Pressed() )  pressAtariKey_asterisk(); else   releaseAtariKey_asterisk();
-    if ( jaguarKey_0_Pressed()        )  pressAtariKey_0();        else   releaseAtariKey_0();
-    if ( jaguarKey_hash_Pressed()     )  pressAtariKey_hash();     else   releaseAtariKey_hash();
+
+  // update keypad
+  if ( jaguarKey_1_Pressed()        )  pressAtariKey_1();        else   releaseAtariKey_1();
+  if ( jaguarKey_2_Pressed()        )  pressAtariKey_2();        else   releaseAtariKey_2();
+  if ( jaguarKey_3_Pressed()        )  pressAtariKey_3();        else   releaseAtariKey_3();
+  if ( jaguarKey_4_Pressed()        )  pressAtariKey_4();        else   releaseAtariKey_4();
+  if ( jaguarKey_5_Pressed()        )  pressAtariKey_5();        else   releaseAtariKey_5();
+  if ( jaguarKey_6_Pressed()        )  pressAtariKey_6();        else   releaseAtariKey_6();
+  if ( jaguarKey_7_Pressed()        )  pressAtariKey_7();        else   releaseAtariKey_7();
+  if ( jaguarKey_8_Pressed()        )  pressAtariKey_8();        else   releaseAtariKey_8();
+  if ( jaguarKey_9_Pressed()        )  pressAtariKey_9();        else   releaseAtariKey_9();
+  if ( jaguarKey_asterisk_Pressed() )  pressAtariKey_asterisk(); else   releaseAtariKey_asterisk();
+  if ( jaguarKey_0_Pressed()        )  pressAtariKey_0();        else   releaseAtariKey_0();
+  if ( jaguarKey_hash_Pressed()     )  pressAtariKey_hash();     else   releaseAtariKey_hash();
 
 
-    // update directionals
-    if ( jaguarKey_Up_Pressed()       )  pressAtariKey_Up();       else   releaseAtariKey_Up();
-    if ( jaguarKey_Down_Pressed()     )  pressAtariKey_Down();     else   releaseAtariKey_Down();
-    if ( jaguarKey_Left_Pressed()     )  pressAtariKey_Left();     else   releaseAtariKey_Left();
-    if ( jaguarKey_Right_Pressed()    )  pressAtariKey_Right();    else   releaseAtariKey_Right();
+  // update directionals
+  if ( jaguarKey_Up_Pressed()       )  pressAtariKey_Up();       else   releaseAtariKey_Up();
+  if ( jaguarKey_Down_Pressed()     )  pressAtariKey_Down();     else   releaseAtariKey_Down();
+  if ( jaguarKey_Left_Pressed()     )  pressAtariKey_Left();     else   releaseAtariKey_Left();
+  if ( jaguarKey_Right_Pressed()    )  pressAtariKey_Right();    else   releaseAtariKey_Right();
 
 
-    // update fire buttons
-    switch (operationMode) {
+  // update fire buttons
+  switch (operationMode) {
 
-      case OMEGA_BOOSTER:
-  	  if ( jaguarKey_A_Pressed()   )   pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A - Fire Button (active low)
-  	  if ( jaguarKey_B_Pressed()   )   releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button B - Pot1 active high
-  	  if ( jaguarKey_C_Pressed()   )   releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button C - Pot2 active high
-        break;
+    case OMEGA_BOOSTER:
+      if ( jaguarKey_A_Pressed()   )   pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A - Fire Button (active low)
+      if ( jaguarKey_B_Pressed()   )   releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button B - Pot1 active high
+      if ( jaguarKey_C_Pressed()   )   releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button C - Pot2 active high
+      break;
 
-      case JOY2BPLUS:
-  	  if ( jaguarKey_A_Pressed()   )   pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A - Fire Button (active low)
-  	  if ( jaguarKey_B_Pressed()   )   pressAtariKey_Pot1();     else releaseAtariKey_Pot1(); // Button B - Pot1 active low
-  	  if ( jaguarKey_C_Pressed()   )   pressAtariKey_Pot2();     else releaseAtariKey_Pot2(); // Button C - Pot2 active low
-        break;
+    case JOY2BPLUS:
+      if ( jaguarKey_A_Pressed()   )   pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A - Fire Button (active low)
+      if ( jaguarKey_B_Pressed()   )   pressAtariKey_Pot1();     else releaseAtariKey_Pot1(); // Button B - Pot1 active low
+      if ( jaguarKey_C_Pressed()   )   pressAtariKey_Pot2();     else releaseAtariKey_Pot2(); // Button C - Pot2 active low
+      break;
 
-      case PROLINE:
-      case PETSCII:
-  	  if ( jaguarKey_A_Pressed()   ) { // Button A - Activate buttons B and C, active high
-  	     releaseAtariKey_Pot1();
-  		 releaseAtariKey_Pot2();
-  	  }  else {
-  		 pressAtariKey_Pot1();
-  		 pressAtariKey_Pot2();
-  		 }
+    case PROLINE:
+    case PETSCII:
+      releaseAtariKey_Fire();
+      if ( jaguarKey_A_Pressed()   ) { // Button A - Activate buttons B and C, active high
+        releaseAtariKey_Pot1();
+        releaseAtariKey_Pot2();
+      }  else {   // not button a, process B and C individually
+        if ( jaguarKey_B_Pressed()   )   releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button B - Pot1 active high
+        if ( jaguarKey_C_Pressed()   )   releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button C - Pot2 active high
+      }
+    default:
+      break;
+  } // switch
 
-  	  if ( jaguarKey_B_Pressed()   )   releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button B - Pot1 active high
-  	  if ( jaguarKey_C_Pressed()   )   releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button C - Pot2 active high
-
-      default:
-        break;
-    } // switch
-  */
 }
 
-void processSnesSampleData (void) { /// entra aqui
+void processSnesSampleData (void) { /// ok
 #if DEBUG == 1
   Serial.print ("SnesData:"); Serial.println (snesScan, HEX);
 #endif
 
   /// OK
   // check if the controller is a SNES gamepad
-  if ((snesScan >> 12) == 0x0000000f) { /// entra aqui
+  if ((snesScan >> 12) == 0x0000000f) { /// ok
 #if DEBUG == 1
     Serial.println ("SnesGampepad");
 #endif
@@ -540,7 +542,7 @@ void processSnesOther(void) {  /// ok
       break;
 
     case (1<<3): // Start
-      //Serial.println("start");
+    //Serial.println("start");
     case (3<<2): // Select + Start  -> keypad * and #
       //Serial.println("sel+start");
       if ( snesButton_L_Pressed()     )  pressAtariKey_asterisk();  else   releaseAtariKey_asterisk(); // Start[|Sel] + L ->  key *
@@ -590,7 +592,7 @@ void processSnesOther(void) {  /// ok
 
         case PROLINE:  /// ok
           releaseAtariKey_Fire();
-          //Serial.println("PROLINE");
+        //Serial.println("PROLINE");
         default:
           //Serial.println("default");
 
@@ -727,13 +729,16 @@ uint8_t sendjaguarKeypadRowRowAndAtariDirectionalsData (uint8_t data) {
 
   // transfer value to outputs,
   latchHigh();
+  delayMicroseconds(25);
+  latchLow();
+
+  // read the Jaguar data
+  jaguarRow = ((PIN_JAG_IN >> 2) & 0b00111111);
+
 
   // restore indication LEDs state
   if (ledGreen) dataHigh();  else  dataLow();
   if (ledRed) clockHigh(); else clockLow();
-
-  // read the Jaguar data
-  jaguarRow = ((PIN_JAG_IN >> 2) & 0b00111111);
 
   return jaguarRow;  // If necessary reorder bits before returning
 
@@ -742,10 +747,12 @@ uint8_t sendjaguarKeypadRowRowAndAtariDirectionalsData (uint8_t data) {
 
 // shall be performed  before sample SNES controller
 bool  sampleJaguarController(void) {
-  jaguarKeypadRow[0] = sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11101111 & atariDirectionalsJaguarRows );
-  jaguarKeypadRow[1] = sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11011111 & atariDirectionalsJaguarRows );
-  jaguarKeypadRow[2] = sendjaguarKeypadRowRowAndAtariDirectionalsData (0b10111111 & atariDirectionalsJaguarRows );
-  jaguarKeypadRow[3] = sendjaguarKeypadRowRowAndAtariDirectionalsData (0b01111111 & atariDirectionalsJaguarRows );
+
+  jaguarKeypadRow[0] = sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11101111 & (atariDirectionalsJaguarRows | 0xf0) );
+  jaguarKeypadRow[1] = sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11011111 & (atariDirectionalsJaguarRows | 0xf0) );
+  jaguarKeypadRow[2] = sendjaguarKeypadRowRowAndAtariDirectionalsData (0b10111111 & (atariDirectionalsJaguarRows | 0xf0) );
+  jaguarKeypadRow[3] = sendjaguarKeypadRowRowAndAtariDirectionalsData (0b01111111 & (atariDirectionalsJaguarRows | 0xf0) );
+  sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11111111 & ( atariDirectionalsJaguarRows | 0xf0 ) ); // rise all Row selection pins
 
   // restore mode indication led state
   if (ledGreen)
@@ -816,7 +823,7 @@ bool  sampleSNESController(void) {  /// ok
 
 
 void  updateAtariOutputs(void) {
-  sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11111111 & atariDirectionalsJaguarRows );
+  sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11111111 & ( atariDirectionalsJaguarRows | 0xf0 ) );
   cli();
   PORT_KEYPAD_COLS_FIREBUTTONS_OUT = atariKeypadColsFirebuttons;
   sei();
@@ -894,33 +901,33 @@ void dumpVariables () {
     //    2              Hi  Hi  C2  C   0   8   5   2
     //    3              Hi  Hi  C3  Op  #   9   6   3
 
-    if ( ( jaguarKeypadRow[0] & (1 << 5) ) == 0)  Serial.print(F("Ps")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[0] & (1 << 4) ) == 0)  Serial.print(F("A ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[0] & (1 << 3) ) == 0)  Serial.print(F("U ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[0] & (1 << 2) ) == 0)  Serial.print(F("D ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[0] & (1 << 1) ) == 0)  Serial.print(F("L ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[0] & (1 << 0) ) == 0)  Serial.print(F("R ")); else Serial.print (F("- ")); //
+    if ( ( jaguarKeypadRow[0] & (1 << 5) ) == 0)  Serial.print(F("Ps ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[0] & (1 << 4) ) == 0)  Serial.print(F("A  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[0] & (1 << 3) ) == 0)  Serial.print(F("U  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[0] & (1 << 2) ) == 0)  Serial.print(F("D  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[0] & (1 << 1) ) == 0)  Serial.print(F("L  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[0] & (1 << 0) ) == 0)  Serial.print(F("R  ")); else Serial.print (F("-  ")); //
     Serial.println();
-    if ( ( jaguarKeypadRow[1] & (1 << 5) ) == 0)  Serial.print(F("Lo")); else Serial.print (F("Hi")); //
-    if ( ( jaguarKeypadRow[1] & (1 << 4) ) == 0)  Serial.print(F("B ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[1] & (1 << 3) ) == 0)  Serial.print(F("* ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[1] & (1 << 2) ) == 0)  Serial.print(F("7 ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[1] & (1 << 1) ) == 0)  Serial.print(F("4 ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[1] & (1 << 0) ) == 0)  Serial.print(F("1 ")); else Serial.print (F("- ")); //
+    if ( ( jaguarKeypadRow[1] & (1 << 5) ) == 0)  Serial.print(F("Lo ")); else Serial.print (F("Hi ")); //
+    if ( ( jaguarKeypadRow[1] & (1 << 4) ) == 0)  Serial.print(F("B  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[1] & (1 << 3) ) == 0)  Serial.print(F("*  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[1] & (1 << 2) ) == 0)  Serial.print(F("7  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[1] & (1 << 1) ) == 0)  Serial.print(F("4  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[1] & (1 << 0) ) == 0)  Serial.print(F("1  ")); else Serial.print (F("-  ")); //
     Serial.println();
-    if ( ( jaguarKeypadRow[2] & (1 << 5) ) == 0)  Serial.print(F("Lo")); else Serial.print (F("Hi")); //
-    if ( ( jaguarKeypadRow[2] & (1 << 4) ) == 0)  Serial.print(F("C ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[2] & (1 << 3) ) == 0)  Serial.print(F("0 ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[2] & (1 << 2) ) == 0)  Serial.print(F("8 ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[2] & (1 << 1) ) == 0)  Serial.print(F("5 ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[2] & (1 << 0) ) == 0)  Serial.print(F("2 ")); else Serial.print (F("- ")); //
+    if ( ( jaguarKeypadRow[2] & (1 << 5) ) == 0)  Serial.print(F("Lo ")); else Serial.print (F("Hi ")); //
+    if ( ( jaguarKeypadRow[2] & (1 << 4) ) == 0)  Serial.print(F("C  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[2] & (1 << 3) ) == 0)  Serial.print(F("0  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[2] & (1 << 2) ) == 0)  Serial.print(F("8  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[2] & (1 << 1) ) == 0)  Serial.print(F("5  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[2] & (1 << 0) ) == 0)  Serial.print(F("2  ")); else Serial.print (F("-  ")); //
     Serial.println();
-    if ( ( jaguarKeypadRow[3] & (1 << 5) ) == 0)  Serial.print(F("Lo")); else Serial.print (F("Hi")); //
-    if ( ( jaguarKeypadRow[3] & (1 << 4) ) == 0)  Serial.print(F("OP")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[3] & (1 << 3) ) == 0)  Serial.print(F("# ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[3] & (1 << 2) ) == 0)  Serial.print(F("9 ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[3] & (1 << 1) ) == 0)  Serial.print(F("6 ")); else Serial.print (F("- ")); //
-    if ( ( jaguarKeypadRow[3] & (1 << 0) ) == 0)  Serial.print(F("3 ")); else Serial.print (F("- ")); //
+    if ( ( jaguarKeypadRow[3] & (1 << 5) ) == 0)  Serial.print(F("Lo ")); else Serial.print (F("Hi ")); //
+    if ( ( jaguarKeypadRow[3] & (1 << 4) ) == 0)  Serial.print(F("OP ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[3] & (1 << 3) ) == 0)  Serial.print(F("#  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[3] & (1 << 2) ) == 0)  Serial.print(F("9  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[3] & (1 << 1) ) == 0)  Serial.print(F("6  ")); else Serial.print (F("-  ")); //
+    if ( ( jaguarKeypadRow[3] & (1 << 0) ) == 0)  Serial.print(F("3  ")); else Serial.print (F("-  ")); //
     Serial.println(); Serial.println();
   }
 
@@ -997,4 +1004,4 @@ void dumpVariables () {
   }
 
 }
-#endif 
+#endif
