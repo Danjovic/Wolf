@@ -14,11 +14,11 @@
 
       SNES NTT data keypad info by Raphnet: https://www.raphnet.net/divers/ntt_data_sfc_controller/index_en.php
 
-      09042022 1408
+      11042022 2046
 */
 
 
-//#define DEBUG 6
+//#define DEBUG 1
 
 //    _ _ _                 _
 //   | (_) |__ _ _ __ _ _ _(_)___ ___
@@ -30,16 +30,22 @@
 #include <avr/eeprom.h>
 #include "macros.h"
 
+#ifndef DEBUG
+#include <Adafruit_NeoPixel.h>
+#endif
+
 //       _      __ _      _ _   _
 //    __| |___ / _(_)_ _ (_) |_(_)___ _ _  ___
 //   / _` / -_)  _| | ' \| |  _| / _ \ ' \(_-<
 //   \__,_\___|_| |_|_||_|_|\__|_\___/_||_/__/
 //
 
-#define _DATA 0
-#define LATCH 12
-#define CLOCK 13
-#define _SNES_DIN A6
+
+#define _DATA        0
+#define _LED         1
+#define LATCH       12
+#define CLOCK       13
+#define _SNES_DIN   A6
 
 #define DDR_JAG_IN  DDRD
 #define PIN_JAG_IN  PIND
@@ -77,6 +83,15 @@ typedef enum { OMEGA_BOOSTER,
                PETSCII
              } t_operationMode;
 
+typedef enum { BLACK = 0,
+               BLUE,
+               RED,
+               MAGENTA,
+               GREEN,
+               CYAN,
+               YELLOW,
+               WHITE
+              } t_colors;
 
 //                 _       _
 //    _ __ _ _ ___| |_ ___| |_ _  _ _ __  ___ ___
@@ -101,6 +116,12 @@ void updateAtariOutputs(void);
 //   \ V / _` | '_| / _` | '_ \ / -_|_-<
 //    \_/\__,_|_| |_\__,_|_.__/_\___/__/
 //
+
+
+#ifndef DEBUG
+Adafruit_NeoPixel pixels(1, _LED, NEO_GRB + NEO_KHZ800);
+#endif
+
 t_operationMode operationMode;
 
 /// Input reports
@@ -116,8 +137,6 @@ volatile uint8_t jaguarKeypadRow[4] = {255, 255, 255, 255};
 //    1              Hi  Hi  C1  B   *   7   4   1
 //    2              Hi  Hi  C2  C   0   8   5   2
 //    3              Hi  Hi  C3  Op  #   9   6   3
-
-
 
 
 /// Output reports
@@ -137,9 +156,6 @@ volatile uint8_t atariKeypadColsFirebuttons;
 //  J3/4 J2/5 J1/6 J0/7 RIGHT LEFT DOWN UP
 volatile uint8_t atariDirectionalsJaguarRows;
 
-
-bool ledRed = false;
-bool ledGreen = false;
 
 
 //            _
@@ -162,11 +178,15 @@ void setup() {
   PORT_KEYPAD_COLS_FIREBUTTONS_OUT  |= 0b00111111; // All High level
   atariKeypadColsFirebuttons         = 0b00111111; // All released
 
+#ifndef DEBUG
+  pinMode(_LED, OUTPUT); 
+  pixels.clear();  
+#endif
+
   pinMode(_DATA, OUTPUT);                        // TODO: incorporate definition in instructions above
   pinMode(LATCH, OUTPUT);
   pinMode(CLOCK, OUTPUT);
   pinMode(_SNES_DIN, INPUT);
-
 
   // Initialize Timers
   TCCR2A = 0;                              // Timer 2, normal mode
@@ -175,11 +195,9 @@ void setup() {
   TIFR2 |= (1 << TOV2);                    // clear any pending interrupts
   // TIMSK2 = (1 << TOIE2);                   // interrupts on overflow
 
-
   // Set ADC Prescaler to 16 (sample takes ~12us)
   ADCSRA |= (1 << ADPS2);
   ADCSRA &= ~( (1 << ADPS1) | (1 << ADPS0) );
-
 
   // recover last operation Mode from eeprom
   operationMode =  eeprom_read_byte( (uint8_t *)eepromAddress);
@@ -189,13 +207,10 @@ void setup() {
   Serial.print ( "operation Mode before:"); Serial.println (operationMode, HEX);
 #endif
 
-
-
-
   // look for operation mode change in Jaguar controller
   if ( sampleJaguarController() ) {
 
-#if DEBUG == 6
+#if DEBUG == 2
     Serial.println ( "Jaguar Controller respond");
 #endif
     if ( (~jaguarKeypadRow[3] & (1 << 4) ) ) { // Option press?
@@ -221,16 +236,13 @@ void setup() {
     } // if
   }
 
-  // look for operation mode change in SNES controller
 
-  if (sampleSNESController()) { 
-#if DEBUG == 1
+  // look for operation mode change in SNES controller
+  if (sampleSNESController()) {
+#if DEBUG == 2
     Serial.print  ( "SNES Controller respond"); Serial.println ( snesScan, HEX);
 #endif
     if ( (~snesScan & (1 << 2) ) ) { // Select press?
-#if DEBUG == 1
-      Serial.print ( "select+:"); Serial.println( ~snesScan >> 4 & 0x0f, HEX);
-#endif
 
       switch ( ~snesScan >> 4 & 0x0f ) { // ... 0  0  0  0  R  L  D  U , active high
         case (1<<0): // UP → Omega Booster ( 2600)
@@ -264,35 +276,28 @@ void setup() {
 
   switch (operationMode) {
     case OMEGA_BOOSTER:
-      ledRed = false; ledGreen   = true;
+      setLed (GREEN);
       atariKeypadColsFirebuttons = 0b00111111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  All released
       break;
 
-
     case JOY2BPLUS:
-      ledRed = true; ledGreen = true;
+      setLed (YELLOW);
       atariKeypadColsFirebuttons = 0b00111111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  All released
       break;
 
     case PETSCII:
-      ledRed = false; ledGreen = false;
+      setLed (BLUE);
       atariKeypadColsFirebuttons = 0b00001111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  POT1 and POT2 idle in 0
       break;
 
     default:
     case PROLINE:
-
-      ledRed = true; ledGreen = false;
+      setLed (RED);
       atariKeypadColsFirebuttons = 0b00001111; // 0  0  POT2 POT1 FIRE COL3 COL2 COL1  POT1 and POT2 idle in 0
       break;
   }
 
-  // restore indication LEDs state
-  if (ledGreen) dataHigh();  else  dataLow();
-  if (ledRed)   clockHigh(); else  clockLow();
-
-
-
+ 
   // Initialize Pin change Interrupts
   PCICR =  (1 << PCIE0); // enable pin change interrupts on Port B
   PCMSK0 = (1 << PCINT3) | (1 << PCINT2) | (1 << PCINT1) | (1 << PCINT0); // pins PB0..PB3 change cause interrupts
@@ -455,15 +460,15 @@ void processJaguarSampledData(void) {
 
 //
 //
-void processSnesSampleData (void) { 
-#if DEBUG == 1
+void processSnesSampleData (void) {
+#if DEBUG == 3
   Serial.print ("SnesData:"); Serial.println (snesScan, HEX);
 #endif
 
   /// OK
   // check if the controller is a SNES gamepad
-  if ((snesScan >> 12) == 0x0000000f) { 
-#if DEBUG == 1
+  if ((snesScan >> 12) == 0x0000000f) {
+#if DEBUG == 3
     Serial.println ("SnesGampepad");
 #endif
     // check if the operation mode is PETSCII robots
@@ -477,7 +482,7 @@ void processSnesSampleData (void) {
 
   // check if the controller is an NTT keypad
   if ( ((snesScan >> 12) & 0x0000000f) == 0x0000000d) {
-#if DEBUG == 1
+#if DEBUG == 3
     Serial.println ("NTTkeypad");
 #endif
     // check if the operation mode is PETSCII robots
@@ -491,15 +496,15 @@ void processSnesSampleData (void) {
 
 //
 //
-void processSnesPetscii(void) { 
+void processSnesPetscii(void) {
   releaseAtariKey_Fire();
-#if DEBUG == 1
+#if DEBUG == 3
   Serial.println ("SnesPetscII");
 #endif
 
   // Check for modifier
   if (snesButton_select_Pressed()) { // Select Pressed (USE shortcut)
-#if DEBUG == 1
+#if DEBUG == 3
     Serial.println ("Select");
 #endif
     // update keypad
@@ -510,7 +515,7 @@ void processSnesPetscii(void) {
     if ( snesButton_start_Pressed() )  pressAtariKey_5();        else   releaseAtariKey_5();        // Select + Start -> key 5
 
   } else {
-#if DEBUG == 1
+#if DEBUG == 3
     Serial.println ("normal");
 #endif
     if ( snesButton_up_Pressed()    )  pressAtariKey_Up();       else   releaseAtariKey_Up();       // Up
@@ -531,9 +536,9 @@ void processSnesPetscii(void) {
 
 //
 //
-void processSnesOther(void) { 
+void processSnesOther(void) {
 
-#if DEBUG == 1
+#if DEBUG == 3
   Serial.println("SnesOther:");
 #endif
   switch ( ~snesScan & 0x0000000c ) { // isolate and invert bits 2 (select) and 3 (start)
@@ -567,7 +572,7 @@ void processSnesOther(void) {
       // update fire buttons
       switch (operationMode) {
 
-        case OMEGA_BOOSTER: 
+        case OMEGA_BOOSTER:
           if ( snesButton_A_Pressed() ||
                snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
 
@@ -578,9 +583,9 @@ void processSnesOther(void) {
                snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L / R -> Pot2 active high
           break;
 
-        case JOY2BPLUS: 
+        case JOY2BPLUS:
           releaseAtariKey_Fire();
-		  
+
           if ( snesButton_A_Pressed() ||
                snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
 
@@ -592,7 +597,7 @@ void processSnesOther(void) {
 
           break;
 
-        case PROLINE: 
+        case PROLINE:
           releaseAtariKey_Fire();
         default:
           //atariKeypadColsFirebuttons  = 0b00001111;
@@ -668,48 +673,48 @@ void processNttSnesOther(void) {
   if ( snesButton_right_Pressed() )  pressAtariKey_Right();    else   releaseAtariKey_Right();    // Right
 
   // update fire buttons
-       switch (operationMode) {
+  switch (operationMode) {
 
-        case OMEGA_BOOSTER: 
-          if ( snesButton_A_Pressed() ||
-               snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
+    case OMEGA_BOOSTER:
+      if ( snesButton_A_Pressed() ||
+           snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
 
-          if ( snesButton_X_Pressed() ||
-               snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y / X -> Pot1 active high
+      if ( snesButton_X_Pressed() ||
+           snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y / X -> Pot1 active high
 
-          if ( snesButton_L_Pressed() ||
-               snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L / R -> Pot2 active high
-          break;
+      if ( snesButton_L_Pressed() ||
+           snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button L / R -> Pot2 active high
+      break;
 
-        case JOY2BPLUS: 
-          releaseAtariKey_Fire();
-		  
-          if ( snesButton_A_Pressed() ||
-               snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
+    case JOY2BPLUS:
+      releaseAtariKey_Fire();
 
-          if ( snesButton_X_Pressed() ||
-               snesButton_Y_Pressed())         pressAtariKey_Pot1();   else releaseAtariKey_Pot1();   // Button Y / X  -> Pot1 active high
+      if ( snesButton_A_Pressed() ||
+           snesButton_B_Pressed())         pressAtariKey_Fire();     else releaseAtariKey_Fire(); // Button A / B -> Fire Button (active low)
 
-          if ( snesButton_L_Pressed() ||
-               snesButton_R_Pressed())         pressAtariKey_Pot2();   else releaseAtariKey_Pot2();   // Button R -> Pot2 active high
+      if ( snesButton_X_Pressed() ||
+           snesButton_Y_Pressed())         pressAtariKey_Pot1();   else releaseAtariKey_Pot1();   // Button Y / X  -> Pot1 active high
 
-          break;
+      if ( snesButton_L_Pressed() ||
+           snesButton_R_Pressed())         pressAtariKey_Pot2();   else releaseAtariKey_Pot2();   // Button R -> Pot2 active high
 
-        case PROLINE: 
-          releaseAtariKey_Fire();
-        default:
-          //atariKeypadColsFirebuttons  = 0b00001111;
-          if ( snesButton_A_Pressed() || snesButton_B_Pressed()  ) { // Button A - Activate buttons B and C, active high
-            releaseAtariKey_Pot1();
-            releaseAtariKey_Pot2();
-          }  else  {  // if neither A or B pressed, check other buttons
-            if ( snesButton_X_Pressed() ||
-                 snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y / X -> Pot1 active high
-            if ( snesButton_L_Pressed() ||
-                 snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button R / L -> Pot2 active high
-          }
-          break;
-      } // switch
+      break;
+
+    case PROLINE:
+      releaseAtariKey_Fire();
+    default:
+      //atariKeypadColsFirebuttons  = 0b00001111;
+      if ( snesButton_A_Pressed() || snesButton_B_Pressed()  ) { // Button A - Activate buttons B and C, active high
+        releaseAtariKey_Pot1();
+        releaseAtariKey_Pot2();
+      }  else  {  // if neither A or B pressed, check other buttons
+        if ( snesButton_X_Pressed() ||
+             snesButton_Y_Pressed())         releaseAtariKey_Pot1();   else pressAtariKey_Pot1();   // Button Y / X -> Pot1 active high
+        if ( snesButton_L_Pressed() ||
+             snesButton_R_Pressed())         releaseAtariKey_Pot2();   else pressAtariKey_Pot2();   // Button R / L -> Pot2 active high
+      }
+      break;
+  } // switch
 }
 
 //
@@ -744,11 +749,7 @@ uint8_t sendjaguarKeypadRowRowAndAtariDirectionalsData (uint8_t data) {
   // read the Jaguar data
   jaguarRow = ((PIN_JAG_IN >> 2) & 0b00111111);
 
-
-  // restore indication LEDs state
-  if (ledGreen) dataHigh();  else  dataLow();
-  if (ledRed) clockHigh(); else clockLow();
-
+ 
   return jaguarRow;  // If necessary reorder bits before returning
 
 } //
@@ -764,11 +765,6 @@ bool  sampleJaguarController(void) {
   jaguarKeypadRow[3] = sendjaguarKeypadRowRowAndAtariDirectionalsData (0b01111111 & (atariDirectionalsJaguarRows | 0xf0) );
   sendjaguarKeypadRowRowAndAtariDirectionalsData (0b11111111 & ( atariDirectionalsJaguarRows | 0xf0 ) ); // rise all Row selection pins
 
-  // restore mode indication led state
-  if (ledGreen)
-    dataHigh();
-  else
-    dataLow();
 
   // check for a jaguar controller. bit 5 of all controllers shall be 1 for a standard controller (also for no controller connected)
   if ((jaguarKeypadRow[1] & (1 << 5)) &  // C1
@@ -812,12 +808,6 @@ bool  sampleSNESController(void) {  /// ok
   Serial.println ();
 #endif
 
-  // restore mode indication led state
-  if (ledRed)
-    clockHigh();
-  else
-    clockLow();
-
   // check if the controller is a SNES gamepad
 #if DEBUG ==2
   Serial.print(" ->"); Serial.println (snesScan, HEX);
@@ -839,6 +829,57 @@ void  updateAtariOutputs(void) {
   PORT_KEYPAD_COLS_FIREBUTTONS_OUT = atariKeypadColsFirebuttons;
   sei();
 } //
+
+
+
+void setLed (uint8_t index) {  // leds coordinates G R B
+#define BRIGHT 30
+#define LED 0
+#ifndef DEBUG
+  pixels.clear();
+  switch (index)
+  {
+    case WHITE:
+      pixels.setPixelColor(LED, pixels.Color(BRIGHT, BRIGHT, BRIGHT));
+      break;
+
+    case YELLOW:
+      pixels.setPixelColor(LED, pixels.Color(BRIGHT, BRIGHT, 0));
+      break;
+
+    case CYAN:
+      pixels.setPixelColor(LED, pixels.Color(0,BRIGHT,BRIGHT));
+      break;
+
+    case GREEN:
+      pixels.setPixelColor(LED, pixels.Color(0, BRIGHT, 0));
+      break;
+
+    case MAGENTA:
+      pixels.setPixelColor(LED, pixels.Color(BRIGHT, 0, BRIGHT));
+      break;
+
+    case RED:
+      pixels.setPixelColor(LED, pixels.Color(BRIGHT, 0, 0));
+      break;
+
+    case BLUE:
+      pixels.setPixelColor(LED, pixels.Color(0, 0, BRIGHT));
+      break;
+
+    default:
+    case BLACK:
+      pixels.setPixelColor(LED, pixels.Color(0, 0, 0));
+      break;
+  }
+  pixels.show();   // Send the updated pixel colors to the hardware.
+
+#else
+	Serial.print ("Mode color: "); Serial.println (index);
+#endif
+
+}
+
 
 
 
