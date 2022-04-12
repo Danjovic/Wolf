@@ -12500,11 +12500,6 @@ Port 2</text>
 <pinref part="IC1" gate="A" pin="SER"/>
 </segment>
 <segment>
-<wire x1="215.9" y1="101.6" x2="210.82" y2="101.6" width="0.1524" layer="91"/>
-<pinref part="R4" gate="G$1" pin="1"/>
-<label x="210.82" y="101.6" size="1.27" layer="95" rot="R180" xref="yes"/>
-</segment>
-<segment>
 <wire x1="71.12" y1="144.78" x2="55.88" y2="144.78" width="0.1524" layer="91"/>
 <label x="55.88" y="144.78" size="1.27" layer="95" rot="MR0" xref="yes"/>
 <pinref part="M1" gate="G$1" pin="RX1$1"/>
@@ -12703,6 +12698,18 @@ Port 2</text>
 <pinref part="M1" gate="G$1" pin="VCC$1"/>
 <pinref part="JP1" gate="A" pin="1"/>
 <wire x1="96.52" y1="139.7" x2="114.3" y2="139.7" width="0.1524" layer="91"/>
+</segment>
+</net>
+<net name="LED" class="0">
+<segment>
+<pinref part="M1" gate="G$1" pin="TX0$1"/>
+<wire x1="71.12" y1="147.32" x2="55.88" y2="147.32" width="0.1524" layer="91"/>
+<label x="55.88" y="147.32" size="1.27" layer="95" rot="R180" xref="yes"/>
+</segment>
+<segment>
+<wire x1="215.9" y1="101.6" x2="210.82" y2="101.6" width="0.1524" layer="91"/>
+<pinref part="R4" gate="G$1" pin="1"/>
+<label x="210.82" y="101.6" size="1.27" layer="95" rot="R180" xref="yes"/>
 </segment>
 </net>
 </nets>
